@@ -35,6 +35,54 @@ router.post('/register',async(req,res)=>{
     
     if (admin == null){
         role = "admin"
+    }else{
+        return res.send({status:false,message:'errorRegister'})
+    }
+
+    const nbr = await User.count({});
+    const num = nbr + 1;
+
+    const user=new User({
+        nom:req.body.nom,
+        num:num,
+        prenom:req.body.prenom,
+        telephone:req.body.telephone,
+        adresse:req.body.adresse,
+        role:role,
+        prenom:req.body.prenom,
+        email:req.body.email,
+        password: hashPassword,
+        ville: req.body.ville,
+        pays: req.body.pays,
+        codePostal: req.body.codePostal,
+        carteIdentite: req.body.carteIdentite,
+    })
+
+    const result=await user.save()
+
+    return res.send({status:true,resultat:result})
+})
+
+router.post('/registerClient',verifytoken, async(req,res)=>{
+  
+    if(req.user.user.role != "admin")
+    return res.status(400).json('articleId expected');
+    
+    const {error}=validateUser(req.body)
+    if(error) return res.send({status:false,message:error.details[0].message})
+
+    const emailExist = await User.findOne({ email: req.body.email});
+    if(emailExist) return res.send({status:false,message:'errorRegister'})
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+    let role = "client";
+    
+    const admin = await User.findOne({ role: 'admin'});
+    
+    if (admin == null){
+        role = "admin"
     }
 
     const nbr = await User.count({});

@@ -6,9 +6,9 @@ const {User} =require('../Models/userModel');
 
 var dateFormat = require('dateformat');
 
-router.post('/newCommande',  verifytoken, async(req,res)=>{
+router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     
-    if(req.user.user.role != "client") return res.status(403).send({status:false})
+    if(req.user.user.role != "admin") return res.status(403).send({status:false})
     
     const {error}=validateClientCommande(req.body)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
@@ -21,11 +21,20 @@ router.post('/newCommande',  verifytoken, async(req,res)=>{
     let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
     
     const commande=new Commande({
-        client:req.user.user.id,
+        client:req.params.id,
         colis:req.body.colis,
         etat:req.body.etat,
+        
+        detailsCourse:req.body.detailsCourse,
+        etageDepart:req.body.etageDepart,
+        etageArrive:req.body.etageArrive,
+        distance:req.body.distance,
+        heureFin:req.body.heureFin,
+        minuteFin:req.body.minuteFin,
+        creneaux:req.body.creneaux,
+        
         num:num,
-        numClient:req.user.user.num,
+        numClient:req.params.num,
         isOpenAdmin:0,
         isOpenClient:1,
         adresseDepart:req.body.adresseDepart,
@@ -68,6 +77,15 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
         {
             colis:req.body.colis,
             facture:req.body.facture,
+
+            detailsCourse:req.body.detailsCourse,
+            etageDepart:req.body.etageDepart,
+            etageArrive:req.body.etageArrive,
+            distance:req.body.distance,
+            heureFin:req.body.heureFin,
+            minuteFin:req.body.minuteFin,
+            creneaux:req.body.creneaux,
+            
             adresseDepart:req.body.adresseDepart,
             adresseArrive:req.body.adresseArrive,
             date:req.body.date,
@@ -84,6 +102,40 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
 })
 
 
+
+router.get('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
+  
+    if(req.user.user.role != "client" ) return res.status(400).send({status:false})
+
+    console.log(req.params.idCommande)
+    let commande = Commande.findOne({_id:req.params.idCommande});
+    
+    if(commande.length > 0){
+        commande = commande[0]
+        if(commande.client != req.user.user._id){
+            return res.status(400).send({status:false}) 
+        }
+    }else{
+        return res.status(400).send({status:false}) 
+    }
+
+    let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
+  
+    const result=await Commande.findByIdAndUpdate(req.params.idCommande,
+        {
+            etat:req.params.etat, 
+            isOpenAdmin:0,
+            isOpenClient:1,
+            updatedDate:dateCurrent
+        })
+
+    commande = Commande.findById(req.params.idCommande);   
+
+    return res.send({status:true,resultat:commande})
+    
+})
+
+
 router.post('/commandes', verifytoken, async(req,res)=>{
    
     const {error}=validateRequestCommandes(req.body)
@@ -91,7 +143,7 @@ router.post('/commandes', verifytoken, async(req,res)=>{
    
     const options = {
         page: req.body.page,
-        limit: req.body.limitPage,
+        limit: Number(req.body.limitPage),
         customLabels: myCustomLabels,
         //populate: 'client'
         sort:{
@@ -100,6 +152,7 @@ router.post('/commandes', verifytoken, async(req,res)=>{
     };
 
     let filter = []
+    let filterGlobal = {}
 
     if(req.body.etat != ""){
         filter.push({"etat":req.body.etat})
@@ -118,15 +171,25 @@ router.post('/commandes', verifytoken, async(req,res)=>{
         if(req.body.numClient != 0){
             filter.push({"numClient":req.body.numClient})
         }
+
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else{
+            filterGlobal={"numClient":req.body.numClient}
+        }
     
     }else{
         filter.push({"client":req.user.user.id})
+        
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else{
+            filterGlobal = {"client":req.user.user.id}
+        }
     }
 
-    let filterGlobal = {}
-    if(filter.length > 0){
-        filterGlobal = {$and:filter}
-    }
+   
+   
 
     const result=await Commande.paginate(filterGlobal, options)
     return res.send({status:true,resultat:result})
