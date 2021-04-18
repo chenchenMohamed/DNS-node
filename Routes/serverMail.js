@@ -57,7 +57,7 @@ router.post('/emailMotPasseEmail',async(req,res)=>{
 
             <span style="font-size:20px; padding:5px; font-weight:700; width:100%;"> Bonjour !! </span> 
             <br> 
-            <span style="color:#fe5723; font-size:17px; padding:5px; font-weight:500; width:100%;"> Bienvenue Chez Tunisieshop </span> <br> 
+            <span style="color:#fe5723; font-size:17px; padding:5px; font-weight:500; width:100%;"> Bienvenue Chez DNA Transport </span> <br> 
        
             <p>Nous avons récemment reçu une demande de récupération du compte ${req.body.email}. </p>
             <p> Si vous ne vous êtes pas connecté récemment, vous devez immédiatement modifier votre mot de passe.</p>

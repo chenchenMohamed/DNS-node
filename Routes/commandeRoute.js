@@ -1,4 +1,4 @@
-const {Commande, validateClientCommande, validateAdminCommande, validateRequestCommandes} =require('../Models/commandeModel')
+const {Commande, validateClientCommande, validateCommentaires, validateRequestCommandes, validateCommandeSansClient} =require('../Models/commandeModel')
 const express=require('express')
 const router=express.Router()
 const jwt = require('jsonwebtoken');
@@ -10,7 +10,9 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     
     if(req.user.user.role != "admin") return res.status(403).send({status:false})
     
+    console.log(req.body)
     const {error}=validateClientCommande(req.body)
+    //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
     
     const nbr = await Commande.count({});
@@ -23,6 +25,9 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     const commande=new Commande({
         client:req.params.id,
         colis:req.body.colis,
+        facture:req.body.facture,
+        commentaires:req.body.commentaires,
+        
         etat:req.body.etat,
         
         detailsCourse:req.body.detailsCourse,
@@ -37,6 +42,51 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
         numClient:req.params.num,
         isOpenAdmin:0,
         isOpenClient:1,
+        adresseDepart:req.body.adresseDepart,
+        adresseArrive:req.body.adresseArrive,
+        date:req.body.date,
+        heure:req.body.heure,
+        minute:req.body.minute,
+        createdDate:dateCurrent,
+        createdTime:timeCurrent,
+        updatedDate:dateTimeCurrent
+    },)
+
+    const result=await commande.save()
+    return res.send({status:true,resultat:result})
+})
+
+
+router.post('/newCommandeSansClient', async(req,res)=>{
+    
+  
+    const {error}=validateCommandeSansClient(req.body)
+   // console.log(error.details[0].message)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+    
+    const nbr = await Commande.count({});
+    const num = nbr + 1;
+   
+    let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd");
+    let timeCurrent = dateFormat(new Date(), "HH:MM");
+    let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
+    
+    const commande=new Commande({
+        etat:req.body.etat,
+       
+        telephone:req.body.telephone,
+       
+        detailsCourse:req.body.detailsCourse,
+        etageDepart:req.body.etageDepart,
+        etageArrive:req.body.etageArrive,
+        distance:req.body.distance,
+        heureFin:req.body.heureFin,
+        minuteFin:req.body.minuteFin,
+        creneaux:req.body.creneaux,
+        
+        num:num,
+        isOpenAdmin:1,
+        isOpenClient:0,
         adresseDepart:req.body.adresseDepart,
         adresseArrive:req.body.adresseArrive,
         date:req.body.date,
@@ -68,15 +118,17 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
   
     if(req.user.user.role != "admin" ) return res.status(400).send({status:false})
 
-    const {error}=validateAdminCommande(req.body)
+    const {error}=validateClientCommande(req.body)
+    //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
-
+  
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
   
     const result=await Commande.findByIdAndUpdate(req.params.idCommande,
         {
             colis:req.body.colis,
             facture:req.body.facture,
+            commentaires:req.body.commentaires,
 
             detailsCourse:req.body.detailsCourse,
             etageDepart:req.body.etageDepart,
@@ -85,7 +137,7 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
             heureFin:req.body.heureFin,
             minuteFin:req.body.minuteFin,
             creneaux:req.body.creneaux,
-            
+
             adresseDepart:req.body.adresseDepart,
             adresseArrive:req.body.adresseArrive,
             date:req.body.date,
@@ -101,23 +153,47 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
     
 })
 
-
-
-router.get('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
+router.post('/ajouterCommentaires', verifytoken, async(req,res)=>{
   
-    if(req.user.user.role != "client" ) return res.status(400).send({status:false})
+    const {error}=validateCommentaires(req.body)
+    //console.log(error.details[0].message)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+  
+    let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
 
+    let commentaire
+    if(req.user.user.role == "admin"){
+       commentaire = {message:req.body.commentaire, nom:"Admin", dateCommentaire:dateCurrent, isAdmin:"1"}
+    }else{
+       commentaire = {message:req.body.commentaire, nom:"Client "+req.user.user.num, dateCommentaire:dateCurrent, isAdmin:"0"}
+    }
+
+    const commande = await Commande.findById(req.body.idCommande)
+    if(commande == null){
+        return
+    }
+    let commentaires = commande.commentaires
+    commentaires.push(commentaire)
+    console.log(commentaires)
+
+    const result=await Commande.findByIdAndUpdate(req.body.idCommande,
+    {
+            commentaires:commentaires,
+        
+    })
+
+    return res.send({status:true,resultat:commentaires})
+
+})
+
+
+router.post('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
+  
+   
     console.log(req.params.idCommande)
     let commande = Commande.findOne({_id:req.params.idCommande});
-    
-    if(commande.length > 0){
-        commande = commande[0]
-        if(commande.client != req.user.user._id){
-            return res.status(400).send({status:false}) 
-        }
-    }else{
-        return res.status(400).send({status:false}) 
-    }
+   
+   
 
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
   
@@ -129,9 +205,8 @@ router.get('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
             updatedDate:dateCurrent
         })
 
-    commande = Commande.findById(req.params.idCommande);   
-
-    return res.send({status:true,resultat:commande})
+   
+    return res.send({status:true,resultat:result})
     
 })
 
@@ -172,10 +247,10 @@ router.post('/commandes', verifytoken, async(req,res)=>{
             filter.push({"numClient":req.body.numClient})
         }
 
-        if(filter.length > 1){
+        if(filter.length > 0){
             filterGlobal = {$and:filter}
         }else{
-            filterGlobal={"numClient":req.body.numClient}
+            filterGlobal={}
         }
     
     }else{

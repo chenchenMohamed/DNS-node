@@ -240,16 +240,31 @@ router.post('/listesClients', verifytoken, async(req,res)=>{
             createdAt: -1 
         }
     };
+
+    let filter = [{role:"client"}]
+
+    if(req.body.search != undefined && req.body.search != "" ){
+        filter.push({nom:{ $regex: '.*' + req.body.search + '.*' }})
+    }
+
+    if(req.body.num != undefined && req.body.num != 0){
+        filter.push({num:req.body.num})
+    }
     
     if(req.user.user.role != "admin"){
       return res.send({status:false})
     }
-    const result=await User.paginate({role:"client"}, options)
+
+    let result = null
+    if(filter.length == 1){
+        result=await User.paginate({role:"client"}, options)
+    }else{
+        result=await User.paginate({$and:filter}, options)
+    }
+    
     
     return res.send({status:true,resultat:result})
 })
-
- 
 
 
 function verifytoken(req, res, next){

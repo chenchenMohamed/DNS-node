@@ -7,7 +7,7 @@ const { routerUser } = require("./Routes/userRoute")
 const { routerCommande } = require("./Routes/commandeRoute")
 const { routerContact } = require("./Routes/contactRoute")
 const {routerServerMail} = require("./Routes/serverMail")
-
+const { routerTarifs } = require("./Routes/tarifsRoute")
 
 
 const cors=require('cors')
@@ -30,6 +30,7 @@ app.use('/user',routerUser)
 app.use('/commande',routerCommande)
 app.use('/contact',routerContact)
 app.use('/email',routerServerMail)
+app.use('/tarif',routerTarifs)
 
 
 app.use(bodyParser.urlencoded({ extended: false }));

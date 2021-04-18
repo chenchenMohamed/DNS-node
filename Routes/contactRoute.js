@@ -1,4 +1,4 @@
-const {Contact, validateContact, validateContactSansCompte} =require('../Models/contactModel')
+const {Contact, validateContact} =require('../Models/contactModel')
 const express=require('express')
 const router=express.Router()
 const jwt = require('jsonwebtoken');
