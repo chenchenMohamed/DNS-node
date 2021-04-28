@@ -55,6 +55,10 @@ const schemaCommande=mongoose.Schema({
     createdDate:{type:String,default: ""},
     createdTime:{type:String,default: ""},
     updatedDate:{type:String,default: ""},
+
+    tempsMunitation:{type:Number,default: 0},
+
+    codeLivraison:{type:String,default: ""},
     
 },
 { timestamps: true }
@@ -100,6 +104,8 @@ function validateClientCommande(commande){
         etageArrive:Joi.string().allow(""),
         detailsCourse:Joi.string().allow(""),
 
+        tempsMunitation:Joi.number().allow(""),
+
         date:Joi.string().allow(""),
 
         heure:Joi.number().allow(""),
@@ -107,6 +113,8 @@ function validateClientCommande(commande){
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
         creneaux:Joi.string().allow(""),
+
+        codeLivraison:Joi.string().allow(""),
         
         etat:Joi.string().allow(""),
     })
@@ -160,6 +168,10 @@ function validateAdminCommande(commande){
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
         creneaux:Joi.string().allow(""),
+
+        tempsMunitation:Joi.number().allow(""),
+
+        codeLivraison:Joi.string().allow(""),
         
         etat:Joi.string().allow("")
     })
@@ -202,6 +214,8 @@ function validateCommandeSansClient(commande){
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
         creneaux:Joi.string().allow(""),
+
+        codeLivraison:Joi.string().allow(""),
         
         etat:Joi.string().allow("")
     })

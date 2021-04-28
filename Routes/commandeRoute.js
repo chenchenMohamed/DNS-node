@@ -13,6 +13,7 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     
    
     const {error}=validateClientCommande(req.body)
+    //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
     
     const nbr = await Commande.count({});
@@ -26,7 +27,7 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
         client:req.params.id,
         colis:req.body.colis,
         facture:req.body.facture,
-        commentaires:req.body.commentaires,
+        commentaires:[],
         
         etat:req.body.etat,
         
@@ -37,7 +38,11 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
         heureFin:req.body.heureFin,
         minuteFin:req.body.minuteFin,
         creneaux:req.body.creneaux,
-        
+
+        tempsMunitation:req.body.tempsMunitation,
+
+        codeLivraison:req.body.codeLivraison,
+
         typeCamion:req.body.typeCamion,
 
         num:num,
@@ -75,7 +80,9 @@ router.post('/newCommandeSansClient', async(req,res)=>{
     
     const commande=new Commande({
         etat:req.body.etat,
-       
+        
+        commentaires:[],
+        
         telephone:req.body.telephone,
        
         typeCamion:req.body.typeCamion,
@@ -87,7 +94,9 @@ router.post('/newCommandeSansClient', async(req,res)=>{
         heureFin:req.body.heureFin,
         minuteFin:req.body.minuteFin,
         creneaux:req.body.creneaux,
-        
+
+        codeLivraison:req.body.codeLivraison,
+
         num:num,
         isOpenAdmin:1,
         isOpenClient:0,
@@ -122,6 +131,8 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
   
     //if(req.user.user.role != "admin" ) return res.status(400).send({status:false})
 
+    console.log(req.body)
+
     const {error}=validateClientCommande(req.body)
    // console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
@@ -132,8 +143,7 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
         {
             colis:req.body.colis,
             facture:req.body.facture,
-            commentaires:req.body.commentaires,
-
+            
             detailsCourse:req.body.detailsCourse,
             etageDepart:req.body.etageDepart,
             etageArrive:req.body.etageArrive,
@@ -141,6 +151,8 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
             heureFin:req.body.heureFin,
             minuteFin:req.body.minuteFin,
             creneaux:req.body.creneaux,
+
+            codeLivraison:req.body.codeLivraison,
 
             typeCamion:req.body.typeCamion,
         
@@ -152,7 +164,10 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
             etat:req.body.etat, 
             isOpenAdmin:1,
             isOpenClient:0,
-            updatedDate:dateCurrent
+            updatedDate:dateCurrent,
+
+            tempsMunitation:req.body.tempsMunitation,
+
         })
 
     return res.send({status:true,resultat:result})
@@ -165,6 +180,8 @@ router.post('/ajouterCommentaires', verifytoken, async(req,res)=>{
     //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
   
+    console.log(req.body)
+
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
 
     let commentaire
@@ -178,14 +195,19 @@ router.post('/ajouterCommentaires', verifytoken, async(req,res)=>{
     if(commande == null){
         return
     }
+
     let commentaires = commande.commentaires
+    
+    if(commentaires == null){
+        commentaires = []
+    }
+    
     commentaires.push(commentaire)
     console.log(commentaires)
 
     const result=await Commande.findByIdAndUpdate(req.body.idCommande,
     {
             commentaires:commentaires,
-        
     })
 
     return res.send({status:true,resultat:commentaires})
