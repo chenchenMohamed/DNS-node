@@ -128,7 +128,7 @@ router.post('/login',async(req,res)=>{
     }
 
     jwt.sign({user}, 'secretkey', (err, token) => {
-        res.json({status:true, email: user.email, token:token, role: user.role});
+        res.json({status:true, email: user.email, token:token, role: user.role, user:user});
     });
 
 })

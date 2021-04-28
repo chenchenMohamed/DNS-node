@@ -21,15 +21,17 @@ const schemaCommande=mongoose.Schema({
     etageArrive:{type:String,default: ""},
     detailsCourse:{type:String, default: ""},
     
+    typeCamion:{type:String,default: ""},
+   
     date:{type:String,default: ""},
     
     telephone:{type:String,default: ""},
     
-    heure:{type:String,default: "0"},
-    minute:{type:String,default: "0"},
-    heureFin:{type:String,default: "0"},
-    minuteFin:{type:String,default: "0"},
-    creneaux:{type:String,default: "0"},
+    heure:{type:Number,default: "0"},
+    minute:{type:Number,default: "0"},
+    heureFin:{type:Number,default: "0"},
+    minuteFin:{type:Number,default: "0"},
+    creneaux:{type:String   ,default: "0"},
 
     client:{type:String,default: "0"},
     etat:{type:String,required:true},
@@ -89,6 +91,8 @@ function validateClientCommande(commande){
         colis:Joi.array().items(item),
         facture:Joi.array().items(itemFacture),
     
+        typeCamion:Joi.string().allow(""),
+       
         adresseDepart:Joi.string().allow(""),
         adresseArrive:Joi.string().allow(""),
         distance:Joi.number().allow(""),
@@ -140,6 +144,8 @@ function validateAdminCommande(commande){
         colis:Joi.array().items(item),
         facture:Joi.array().items(itemFacture),
    
+        typeCamion:Joi.string().allow(""),
+       
         adresseDepart:Joi.string().allow(""),
         adresseArrive:Joi.string().allow(""),
         distance:Joi.number().allow(""),
@@ -183,6 +189,8 @@ function validateCommandeSansClient(commande){
         etageDepart:Joi.string().allow(""),
         etageArrive:Joi.string().allow(""),
         
+        typeCamion:Joi.string().allow(""),
+       
         detailsCourse:Joi.string().allow(""),
 
         date:Joi.string().allow(""),
@@ -201,9 +209,24 @@ function validateCommandeSansClient(commande){
     return schema.validate(commande)
 }
 
+function validateStatistiqueAdmin(commande){
+
+    let schema = Joi.object({
+        etatEnAttentDevis:Joi.string().allow(""),
+        etatEnAttentConfirmation:Joi.string().allow(""),
+        etatEnAttentLivraison:Joi.string().allow(""),
+        etatComplete:Joi.string().allow(""),
+        etatAnnuler:Joi.string().allow(""),
+        dateNow:Joi.string().allow(""),
+    })
+      
+    return schema.validate(commande)
+}
+
 module.exports.Commande=Commande
 module.exports.validateClientCommande=validateClientCommande
 module.exports.validateAdminCommande = validateAdminCommande
 module.exports.validateRequestCommandes = validateRequestCommandes
 module.exports.validateCommentaires = validateCommentaires
 module.exports.validateCommandeSansClient=validateCommandeSansClient
+module.exports.validateStatistiqueAdmin=validateStatistiqueAdmin

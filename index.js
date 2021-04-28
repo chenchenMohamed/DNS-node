@@ -17,7 +17,7 @@ mongoose.connect("mongodb://localhost/shopBD",{ useUnifiedTopology: true,useNewU
 .then(console.log("connected to mongodb"))
 .catch(err=>console.log(err))
 
-/*mongoose.connect("mongodb+srv://cluster0.jfk75.mongodb.net/test",{ useUnifiedTopology: true,useNewUrlParser: true , username: "JR-Test", password: "test" })
+/*mongoose.connect("mongodb+srv://cluster0.jfk75.mongodb.net/dnatransport",{ useUnifiedTopology: true,useNewUrlParser: true , username: "JR-Test", password: "test" })
 .then(console.log("connected to mongodb"))
 .catch(err=>console.log(err))
 */

@@ -1,18 +1,18 @@
-const {Commande, validateClientCommande, validateCommentaires, validateRequestCommandes, validateCommandeSansClient} =require('../Models/commandeModel')
+const {Commande, validateStatistiqueAdmin, validateClientCommande, validateCommentaires, validateRequestCommandes, validateCommandeSansClient} =require('../Models/commandeModel')
+const {Contact, validateContact} =require('../Models/contactModel')
+const {User} =require('../Models/userModel');
+
+
 const express=require('express')
 const router=express.Router()
 const jwt = require('jsonwebtoken');
-const {User} =require('../Models/userModel');
 
 var dateFormat = require('dateformat');
 
 router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     
-    if(req.user.user.role != "admin") return res.status(403).send({status:false})
-    
-    console.log(req.body)
+   
     const {error}=validateClientCommande(req.body)
-    //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
     
     const nbr = await Commande.count({});
@@ -38,6 +38,8 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
         minuteFin:req.body.minuteFin,
         creneaux:req.body.creneaux,
         
+        typeCamion:req.body.typeCamion,
+
         num:num,
         numClient:req.params.num,
         isOpenAdmin:0,
@@ -76,6 +78,8 @@ router.post('/newCommandeSansClient', async(req,res)=>{
        
         telephone:req.body.telephone,
        
+        typeCamion:req.body.typeCamion,
+        
         detailsCourse:req.body.detailsCourse,
         etageDepart:req.body.etageDepart,
         etageArrive:req.body.etageArrive,
@@ -116,10 +120,10 @@ const myCustomLabels = {
 
 router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
   
-    if(req.user.user.role != "admin" ) return res.status(400).send({status:false})
+    //if(req.user.user.role != "admin" ) return res.status(400).send({status:false})
 
     const {error}=validateClientCommande(req.body)
-    //console.log(error.details[0].message)
+   // console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
   
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
@@ -138,6 +142,8 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
             minuteFin:req.body.minuteFin,
             creneaux:req.body.creneaux,
 
+            typeCamion:req.body.typeCamion,
+        
             adresseDepart:req.body.adresseDepart,
             adresseArrive:req.body.adresseArrive,
             date:req.body.date,
@@ -209,6 +215,62 @@ router.post('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
     return res.send({status:true,resultat:result})
     
 })
+
+
+router.post('/satistiqueAdmin', verifytoken, async(req,res)=>{
+
+    const {error}=validateStatistiqueAdmin(req.body)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+  
+    if(req.user.user.role != "admin") res.status(400).send({status:false})
+    
+   
+    const nbrEnAttentDevis = await Commande.count({etat:req.body.etatEnAttentDevis});
+   
+    const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation});
+   
+    const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison});
+   
+    const nbrComplete = await Commande.count({etat:req.body.etatComplete});
+   
+    const nbrAnnuler = await Commande.count({etat:req.body.etatAnnuler});
+   
+    const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow});
+   
+    const nbrClient = await User.count({});
+   
+    const nbrContact = await Contact.count({});
+   
+    resultat = {nbrEnAttentDevis:nbrEnAttentDevis,nbrAnnuler:nbrAnnuler, nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow, nbrClient:nbrClient, nbrContact:nbrContact}
+    
+    return res.send({status:true,resultat:resultat})
+
+})
+
+
+
+router.post('/satistiqueClient', verifytoken, async(req,res)=>{
+
+    const {error}=validateStatistiqueAdmin(req.body)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+  
+    if(req.user.user.role != "client") res.status(400).send({status:false})
+    
+    const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, client:req.user.user._id});
+   
+    const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, client:req.user.user._id});
+   
+    const nbrComplete = await Commande.count({etat:req.body.etatComplete, client:req.user.user._id});
+   
+    const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, client:req.user.user._id});
+   
+   
+    resultat = { nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
+    
+    return res.send({status:true,resultat:resultat})
+
+})
+
 
 
 router.post('/commandes', verifytoken, async(req,res)=>{
