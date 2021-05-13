@@ -26,6 +26,9 @@ router.post('/register',async(req,res)=>{
     const emailExist = await User.findOne({ email: req.body.email});
     if(emailExist) return res.send({status:false,message:'errorRegister'})
 
+    const usernameExist = await User.findOne({ username: req.body.username});
+    if(usernameExist) return res.send({status:false,message:'errorRegister'})
+
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -52,9 +55,14 @@ router.post('/register',async(req,res)=>{
         prenom:req.body.prenom,
         email:req.body.email,
         password: hashPassword,
-        ville: req.body.ville,
-        pays: req.body.pays,
-        codePostal: req.body.codePostal,
+        
+        lat: req.body.lat,
+        lng: req.body.lng,
+        
+        username: req.body.username,
+        entreprise: req.body.entreprise,
+        numChef: req.body.numChef,
+      
         carteIdentite: req.body.carteIdentite,
     })
 
@@ -64,9 +72,15 @@ router.post('/register',async(req,res)=>{
 })
 
 router.post('/registerClient',verifytoken, async(req,res)=>{
-  
-    if(req.user.user.role != "admin")
+
+    if(req.user.user.role == "sousClient")
     return res.status(400).json('articleId expected');
+  
+    let role = "client";
+
+    if(req.user.user.role == "client"){
+         role="sousClient"
+    }
     
     const {error}=validateUser(req.body)
     if(error) return res.send({status:false,message:error.details[0].message})
@@ -74,16 +88,11 @@ router.post('/registerClient',verifytoken, async(req,res)=>{
     const emailExist = await User.findOne({ email: req.body.email});
     if(emailExist) return res.send({status:false,message:'errorRegister'})
 
+    const usernameExist = await User.findOne({ username: req.body.username});
+    if(usernameExist) return res.send({status:false,message:'errorRegister'})
+
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
-
-    let role = "client";
-    
-    const admin = await User.findOne({ role: 'admin'});
-    
-    if (admin == null){
-        role = "admin"
-    }
 
     const nbr = await User.count({});
     const num = nbr + 1;
@@ -98,9 +107,16 @@ router.post('/registerClient',verifytoken, async(req,res)=>{
         prenom:req.body.prenom,
         email:req.body.email,
         password: hashPassword,
-        ville: req.body.ville,
-        pays: req.body.pays,
-        codePostal: req.body.codePostal,
+       
+        lat: req.body.lat,
+        lng: req.body.lng,
+        
+        username: req.body.username,
+        entreprise: req.body.entreprise,
+        numChef: req.user.user.num,
+        chef: req.user.user.id,
+        
+
         carteIdentite: req.body.carteIdentite,
     })
 
@@ -115,7 +131,12 @@ router.post('/login',async(req,res)=>{
     const {error}=validateLogin(req.body)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
     
-    const user = await User.findOne({ email: req.body.email});
+    let user = await User.findOne({ email: req.body.email});
+    
+    if(!user){
+        user = await User.findOne({ username: req.body.email});
+    }
+
     if(!user) return res.send({status:false, message:'errorLogin'});
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
@@ -215,13 +236,11 @@ router.post('/update', verifytoken, async(req,res)=>{
         prenom:req.body.prenom,
         telephone:req.body.telephone,
         adresse:req.body.adresse,
-        prenom:req.body.prenom,
-        ville: req.body.ville,
-        pays: req.body.pays,
+        lat:req.body.lat,
+        lng: req.body.lng,
         email:newUser.email,
         password: newUser.password,
-        codePostal: req.body.codePostal,
-        company: req.body.company,
+        entreprise: req.body.entreprise
     })
         
     return res.send({status:true,resultat:result})
@@ -264,6 +283,57 @@ router.post('/listesClients', verifytoken, async(req,res)=>{
     
     
     return res.send({status:true,resultat:result})
+})
+
+router.post('/listesSousClients', verifytoken, async(req,res)=>{
+
+    const options = {
+        page: req.body.page,
+        limit: req.body.limit,
+        customLabels: myCustomLabels,
+        sort:{
+            createdAt: -1 
+        }
+    };
+
+    let filter = [{role:"sousClient"},{numChef:req.user.user.num}]
+
+    if(req.body.search != undefined && req.body.search != "" ){
+        filter.push({nom:{ $regex: '.*' + req.body.search + '.*' }})
+    }
+
+    if(req.body.num != undefined && req.body.num != 0){
+        filter.push({num:req.body.num})
+    }
+    
+    if(req.user.user.role != "client"){
+      return res.send({status:false})
+    }
+
+    let result = null
+    if(filter.length == 1){
+        result=await User.paginate({role:"sousClient"}, options)
+    }else{
+        result=await User.paginate({$and:filter}, options)
+    }
+    
+    return res.send({status:true,resultat:result})
+})
+
+
+router.post('/supprimerSousClients', verifytoken, async(req,res)=>{
+
+    
+    if(req.user.user.role != "client"){
+      return res.send({status:false})
+    }
+
+    if(await User.findOneAndDelete({num:req.body.num})){
+        return res.send({status:true})
+    }else{
+        return res.send({status:false.err})
+    }
+
 })
 
 

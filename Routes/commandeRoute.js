@@ -3,11 +3,34 @@ const {Contact, validateContact} =require('../Models/contactModel')
 const {User} =require('../Models/userModel');
 
 
+const pdf = require('html-pdf');
+
+const pdfTemplate = require('../documents');
+
+
 const express=require('express')
 const router=express.Router()
 const jwt = require('jsonwebtoken');
 
 var dateFormat = require('dateformat');
+
+router.post('/create-pdf', async(req, res)=>{
+
+    let user = await User.findById(req.body.client)
+
+    await pdf.create(pdfTemplate(req.body, user), {}).toFile('uploads/commande.pdf', (err) => {
+        if(err){
+            return res.send(Promise.reject());
+        }
+
+        return res.send(Promise.resolve());
+      
+    })
+})
+
+router.get('/fetch-pdf', async(req, res)=> {
+    res.sendFile(`${__dirname}/commande.pdf`)
+})
 
 router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     
@@ -15,6 +38,24 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     const {error}=validateClientCommande(req.body)
     //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
+
+    let isNewAdmin = 0
+    let isNewClient = 0
+    
+    let createur = ""
+
+    if(req.user.user.role == "admin"){
+       isNewAdmin = 0
+       isNewClient = 1
+       createur = "admin"
+    }else{
+       isNewAdmin = 1
+       isNewClient = 0
+       createur = req.user.user.username
+    }
+
+    
+
     
     const nbr = await Commande.count({});
     const num = nbr + 1;
@@ -27,6 +68,7 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
         client:req.params.id,
         colis:req.body.colis,
         facture:req.body.facture,
+        factureAutomatique:req.body.factureAutomatique,
         commentaires:[],
         
         etat:req.body.etat,
@@ -45,12 +87,23 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
 
         typeCamion:req.body.typeCamion,
 
+        createur:createur,
+
         num:num,
         numClient:req.params.num,
-        isOpenAdmin:0,
-        isOpenClient:1,
+        isOpenAdmin:isNewAdmin,
+        isOpenClient:isNewClient,
         adresseDepart:req.body.adresseDepart,
         adresseArrive:req.body.adresseArrive,
+
+        latDepart:req.body.latDepart,
+        lngDepart:req.body.lngDepart,
+
+        latArrive:req.body.latArrive,
+        lngArrive:req.body.lngArrive,
+
+        duration:req.body.duration,
+
         date:req.body.date,
         heure:req.body.heure,
         minute:req.body.minute,
@@ -90,7 +143,7 @@ router.post('/newCommandeSansClient', async(req,res)=>{
         detailsCourse:req.body.detailsCourse,
         etageDepart:req.body.etageDepart,
         etageArrive:req.body.etageArrive,
-        distance:req.body.distance,
+       
         heureFin:req.body.heureFin,
         minuteFin:req.body.minuteFin,
         creneaux:req.body.creneaux,
@@ -100,8 +153,18 @@ router.post('/newCommandeSansClient', async(req,res)=>{
         num:num,
         isOpenAdmin:1,
         isOpenClient:0,
+        
         adresseDepart:req.body.adresseDepart,
+        latDepart:req.body.latDepart,
+        lngDepart:req.body.lngDepart,
+
         adresseArrive:req.body.adresseArrive,
+        latArrive:req.body.latArrive,
+        lngArrive:req.body.lngArrive,
+
+        distance:req.body.distance,
+        duration:req.body.duration,
+        
         date:req.body.date,
         heure:req.body.heure,
         minute:req.body.minute,
@@ -134,7 +197,7 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
     console.log(req.body)
 
     const {error}=validateClientCommande(req.body)
-   // console.log(error.details[0].message)
+   //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
   
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
@@ -143,11 +206,11 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
         {
             colis:req.body.colis,
             facture:req.body.facture,
-            
+            factureAutomatique:req.body.factureAutomatique,
+
             detailsCourse:req.body.detailsCourse,
             etageDepart:req.body.etageDepart,
             etageArrive:req.body.etageArrive,
-            distance:req.body.distance,
             heureFin:req.body.heureFin,
             minuteFin:req.body.minuteFin,
             creneaux:req.body.creneaux,
@@ -157,13 +220,22 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
             typeCamion:req.body.typeCamion,
         
             adresseDepart:req.body.adresseDepart,
+            latDepart:req.body.latDepart,
+            lngDepart:req.body.lngDepart,
+    
             adresseArrive:req.body.adresseArrive,
+            latArrive:req.body.latArrive,
+            lngArrive:req.body.lngArrive,
+    
+            distance:req.body.distance,
+            duration:req.body.duration,
+
             date:req.body.date,
             heure:req.body.heure,
             minute:req.body.minute,
             etat:req.body.etat, 
-            isOpenAdmin:1,
-            isOpenClient:0,
+            isOpenAdmin:0,
+            isOpenClient:1,
             updatedDate:dateCurrent,
 
             tempsMunitation:req.body.tempsMunitation,
@@ -224,17 +296,31 @@ router.post('/modifierEtat2/:idCommande/:etat', verifytoken, async(req,res)=>{
    
 
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
-  
-    const result=await Commande.findByIdAndUpdate(req.params.idCommande,
-        {
-            etat:req.params.etat, 
-            isOpenAdmin:0,
-            isOpenClient:1,
-            updatedDate:dateCurrent
-        })
 
+    if(req.user.user.role == "admin"){
+        const result=await Commande.findByIdAndUpdate(req.params.idCommande,
+            {
+                etat:req.params.etat, 
+                isOpenClient:1,
+                isOpenAdmin:0,
+                updatedDate:dateCurrent
+            })
+    
+    }else{
+        const result=await Commande.findByIdAndUpdate(req.params.idCommande,
+            {
+                etat:req.params.etat, 
+                isOpenAdmin:1,
+                isOpenClient:0,
+                updatedDate:dateCurrent
+            })
+    
+ 
+    }
+  
+    
    
-    return res.send({status:true,resultat:result})
+    return res.send({status:true})
     
 })
 
@@ -276,18 +362,24 @@ router.post('/satistiqueClient', verifytoken, async(req,res)=>{
     const {error}=validateStatistiqueAdmin(req.body)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
   
-    if(req.user.user.role != "client") res.status(400).send({status:false})
+    let id = ""
+    if(req.user.user.role == "client"){
+        id=req.user.user.id
+    }else{
+        id=req.user.user.chef
+    }
     
-    const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, client:req.user.user._id});
+    const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, client:id});
    
-    const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, client:req.user.user._id});
+    const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, client:id});
    
-    const nbrComplete = await Commande.count({etat:req.body.etatComplete, client:req.user.user._id});
+    const nbrComplete = await Commande.count({etat:req.body.etatComplete, client:id});
    
-    const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, client:req.user.user._id});
+    const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, client:id});
    
+    const nbrLivraisonAnnuler = await Commande.count({etat:req.body.etatAnnuler, client:id});
    
-    resultat = { nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
+    resultat = { nbrLivraisonAnnuler:nbrLivraisonAnnuler, nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
     
     return res.send({status:true,resultat:resultat})
 
@@ -337,7 +429,8 @@ router.post('/commandes', verifytoken, async(req,res)=>{
             filterGlobal={}
         }
     
-    }else{
+    }else if(req.user.user.role == "client"){
+  
         filter.push({"client":req.user.user.id})
         
         if(filter.length > 1){
@@ -345,12 +438,49 @@ router.post('/commandes', verifytoken, async(req,res)=>{
         }else{
             filterGlobal = {"client":req.user.user.id}
         }
+    }else{
+  
+        filter.push({"client":req.user.user.chef})
+        
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else{
+            filterGlobal = {"client":req.user.user.chef}
+        }
     }
 
    
    
 
     const result=await Commande.paginate(filterGlobal, options)
+    return res.send({status:true,resultat:result})
+
+})
+
+router.post('/newsCommandes', verifytoken, async(req,res)=>{
+   
+    
+    const options = {
+        page: 1,
+        limit: 100,
+        customLabels: myCustomLabels,
+        //populate: 'client'
+        sort:{
+            updatedAt: -1 
+        }
+    };
+
+    
+    if(req.user.user.role == "admin"){
+        filterGlobal = {"isOpenAdmin":1}
+    }else{
+        filterGlobal = {"client":req.user.user.id, "isOpenClient":1}
+    }
+
+   
+    const result=await Commande.paginate(filterGlobal, options)
+    
+
     return res.send({status:true,resultat:result})
 
 })
@@ -417,10 +547,13 @@ router.post('/listCommandesClient', verifytoken, async(req,res)=>{
 
 router.post('/changeIsOpen', verifytoken, async(req,res)=>{
   
-    if(req.user.user.role != "admin") return res.status(400).send({status:false})
+    if(req.user.user.role == "admin"){
+        await Commande.findByIdAndUpdate(req.body.idCommande,{isOpenAdmin:0})
+    }else{
+        await Commande.findByIdAndUpdate(req.body.idCommande,{isOpenClient:0})
+    }
     
-    const result=await Commande.findByIdAndUpdate(req.body.idCommande,{isOpen:"1"})
-    return res.send({status:true,resultat:result})
+    return res.send({status:true})
     
 })
 

@@ -8,6 +8,7 @@ const schemaCommande=mongoose.Schema({
     
     colis:[{
         poids:{type:Number,default: 0},
+        poidsTotale:{type:Number,default: 0},
         hauteur:{type:Number,default: 0},
         largeur:{type:Number,default: 0},
         longueur:{type:Number,default: 0},
@@ -15,8 +16,17 @@ const schemaCommande=mongoose.Schema({
     }],
     
     adresseDepart:{type:String,default: ""},
+    latDepart:{type:Number,default: ""},
+    lngDepart:{type:Number,default: ""},
+
     adresseArrive:{type:String,default: ""},
+    latArrive:{type:Number,default: ""},
+    lngArrive:{type:Number,default: ""},
+
+    duration:{type:Number,default: 0},
+
     distance:{type:Number,default: 0},
+    
     etageDepart:{type:String,default: ""},
     etageArrive:{type:String,default: ""},
     detailsCourse:{type:String, default: ""},
@@ -29,18 +39,32 @@ const schemaCommande=mongoose.Schema({
     
     heure:{type:Number,default: "0"},
     minute:{type:Number,default: "0"},
+    modeTime:{type:String   ,default: "AM"},
+    
     heureFin:{type:Number,default: "0"},
     minuteFin:{type:Number,default: "0"},
-    creneaux:{type:String   ,default: "0"},
+    modeTimeFin:{type:String   ,default: "AM"},
+    
+    creneaux:{type:Number,default: 0},
 
     client:{type:String,default: "0"},
+    createur:{type:String,default: ""},
+    chef:{type:String,default: ""},
+    numClient:{type:Number,default: 0},
+   
     etat:{type:String,required:true},
     num:{type:Number,required:true},
-    numClient:{type:Number,default: 0},
     
+    factureAutomatique:[{
+        titre:{type:String,required:true},
+        valeur:{type:Number,default: 0},
+        valeurTtc:{type:Number,default: 0},
+    }],
+
     facture:[{
         titre:{type:String,required:true},
         valeur:{type:Number,default: 0},
+        valeurTtc:{type:Number,default: 0},
     }],
 
     commentaires:[{
@@ -79,6 +103,7 @@ function validateClientCommande(commande){
     
     let item = Joi.object().keys({
         poids:Joi.number().allow(""),
+        poidsTotale:Joi.number().allow(""),
         largeur:Joi.number().allow(""),
         hauteur:Joi.number().allow(""),
         longueur:Joi.number().allow(""),
@@ -88,17 +113,27 @@ function validateClientCommande(commande){
     let itemFacture = Joi.object().keys({
         titre:Joi.string().allow(""),
         valeur:Joi.number().allow(""),
+        valeurTtc:Joi.number().allow(""),
     })
 
         
     let schema = Joi.object({
         colis:Joi.array().items(item),
         facture:Joi.array().items(itemFacture),
-    
+        factureAutomatique:Joi.array().items(itemFacture),
+
         typeCamion:Joi.string().allow(""),
        
         adresseDepart:Joi.string().allow(""),
+        latDepart:Joi.number().allow(""),
+        lngDepart:Joi.number().allow(""),
+
         adresseArrive:Joi.string().allow(""),
+        latArrive:Joi.number().allow(""),
+        lngArrive:Joi.number().allow(""),
+
+        duration:Joi.number().allow(""),
+
         distance:Joi.number().allow(""),
         etageDepart:Joi.string().allow(""),
         etageArrive:Joi.string().allow(""),
@@ -110,9 +145,13 @@ function validateClientCommande(commande){
 
         heure:Joi.number().allow(""),
         minute:Joi.number().allow(""),
+        modeTime:Joi.string().allow(""),
+
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
-        creneaux:Joi.string().allow(""),
+        modeTimeFin:Joi.string().allow(""),
+        
+        creneaux:Joi.number().allow(""),
 
         codeLivraison:Joi.string().allow(""),
         
@@ -136,14 +175,17 @@ function validateAdminCommande(commande){
 
     let item = Joi.object().keys({
         poids:Joi.number().allow(""),
+        poidsTotale:Joi.number().allow(""),
         largeur:Joi.number().allow(""),
         hauteur:Joi.number().allow(""),
         longueur:Joi.number().allow(""),
+        nbr:Joi.number().allow(""),
     })
 
     let itemFacture = Joi.object().keys({
         titre:Joi.string()  .allow(""),
         valeur:Joi.number().allow(""),
+        valeurTtc:Joi.number().allow(""),
     })
       
    
@@ -151,11 +193,20 @@ function validateAdminCommande(commande){
     let schema = Joi.object({
         colis:Joi.array().items(item),
         facture:Joi.array().items(itemFacture),
+        factureAutomatique:Joi.array().items(itemFacture),
    
         typeCamion:Joi.string().allow(""),
        
         adresseDepart:Joi.string().allow(""),
+        latDepart:Joi.number().allow(""),
+        lngDepart:Joi.number().allow(""),
+
         adresseArrive:Joi.string().allow(""),
+        latArrive:Joi.number().allow(""),
+        lngArrive:Joi.number().allow(""),
+
+        duration:Joi.number().allow(""),
+        
         distance:Joi.number().allow(""),
         etageDepart:Joi.string().allow(""),
         etageArrive:Joi.string().allow(""),
@@ -165,9 +216,13 @@ function validateAdminCommande(commande){
 
         heure:Joi.number().allow(""),
         minute:Joi.number().allow(""),
+        modeTime:Joi.string().allow(""),
+
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
-        creneaux:Joi.string().allow(""),
+        modeTimeFin:Joi.string().allow(""),
+        
+        creneaux:Joi.number().allow(""),
 
         tempsMunitation:Joi.number().allow(""),
 
@@ -211,9 +266,13 @@ function validateCommandeSansClient(commande){
 
         heure:Joi.number().allow(""),
         minute:Joi.number().allow(""),
+        modeTime:Joi.string().allow(""),
+
         heureFin:Joi.number().allow(""),
         minuteFin:Joi.number().allow(""),
-        creneaux:Joi.string().allow(""),
+        modeTimeFin:Joi.string().allow(""),
+        
+        creneaux:Joi.number().allow(""),
 
         codeLivraison:Joi.string().allow(""),
         

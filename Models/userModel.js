@@ -7,14 +7,22 @@ const schemaUser=mongoose.Schema({
        nom: {type: String, default: ""},
        num: {type:Number,default: 0},
        password: {type: String, default: ""},
+      
        email: {type: String, default: "", unique: true},
-       telephone: {type: String, default: ""},
+       username:{type: String, default: "username", unique: true},
+
        adresse: {type: String, default: " "},
-       ville: {type: String, default: " "},
-       pays: {type: String, default: " "},
-       codePostal: {type: String, default: " "},
-       role: {type: String, default: "client"},
+       lat: {type: Number, default: 0},
+       lng: {type: Number, default: 0},
+      
+       telephone: {type: String, default: ""},
        carteIdentite: {type: String, default: " "},
+       
+       entreprise: {type: String, default: " "},
+       numChef: {type: String, default: " "},
+       chef: {type: String, default: ""},
+       
+       role: {type: String, default: "client"},
        type: {type: String, default: "Particulier"},
        codeForgotPassword: {type: String, default: ""},
        
@@ -45,11 +53,16 @@ function validateUser(user){
         carteIdentite: Joi.string().allow('', null),
         telephone: Joi.string().allow('', null),
         adresse: Joi.string().allow('', null),
-        ville: Joi.string().allow('', null),
-        pays: Joi.string().allow('', null),
+      
+        lat: Joi.number().allow('', null),
+        lng: Joi.number().allow('', null),
+        
+        username: Joi.string().allow('', null),
+        entreprise: Joi.string().allow('', null),
+        numChef: Joi.string().allow('', null),
+      
         email: Joi.string().email(),
         password: Joi.string().min(6).required(),
-        codePostal: Joi.string().allow('', null),
         type: Joi.string().allow('', null),
    
     })
@@ -63,17 +76,19 @@ function validateUpdateUser(user){
     const schema1 = Joi.object({
         
         nom: Joi.string().allow('', null),
-        carteIdentite: Joi.string().allow('', null),
         telephone: Joi.string().allow('', null),
         adresse: Joi.string().allow('', null),
-        ville: Joi.string().allow('', null),
-        pays: Joi.string().allow('', null),
+        
+        lat: Joi.number().allow('', null),
+        lng: Joi.number().allow('', null),
+        
+        entreprise: Joi.string().allow('', null),
+      
         email: Joi.string().email(),
         password: Joi.string().min(6).required(),
         newEmail: Joi.string().email().allow('', null),
-        newPassword: Joi.string().min(6).allow('', null),     
-        codePostal: Joi.string().allow('', null),
-   
+        newPassword: Joi.string().min(6).allow('', null)
+        
     })
 
     return schema1.validate(user)
@@ -83,7 +98,7 @@ function validateUpdateUser(user){
 function validateLogin(login){
 
     const schema2 = Joi.object({
-        email:Joi.string().required().email(),
+        email:Joi.string().required(),
         password:Joi.string().min(6).required()
     })
 
@@ -93,7 +108,7 @@ function validateLogin(login){
 function validateModifierMotPasse(request){
 
     const schema2 = Joi.object({
-        email:Joi.string().required().email(),
+        email:Joi.string().required(),
         baseUrl:Joi.string().min(6).required()
     })
 
