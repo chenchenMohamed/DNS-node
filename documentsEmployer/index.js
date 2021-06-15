@@ -1,10 +1,7 @@
 module.exports = (commande, client) => {
     const today = new Date();
 
-    const ht = getPrixHT(commande.factureAutomatique, commande.facture);
-    const ttc = getPrixTTC(commande.factureAutomatique, commande.facture);
-    const tva = (ttc - ht).toFixed(2);
-return `
+  return `
     <!doctype html>
     <html>
        <head>
@@ -124,31 +121,95 @@ return `
 
                          <tr>
                             <td style="font-size:7px; line-height:9px;">
+                            
                                <span class="style-blod"> DNA Transport </span> <br>
                                1 square condillac appt 92 <br>
-                               77100 Meaux
+                               77100 Meaux <br>
+                          
+                               <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
+                               <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
+
+                               N° Siret 849 307 210 00013 <br>
+                               N° TVA. FR 41 849 307 210 
+                          
                             </td>
                             <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod"> ${client.nom}  </span> <br>
-                              ${client.adresse}
+                            
                             </td>
                          </tr>
 
                          <tr>
                            <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
-                              <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
+                             <span class="style-blod"> Client de départ:  </span> <br>
                            </td>
-                           <td></td>
+                           <td style="font-size:7px; line-height:9px;">
+                            
+                             <span class="style-blod">Nom:  </span>  ${client.nom} <br>
+                             <span class="style-blod">Adresse:  </span>${client.adresse} <br>
+                             <span class="style-blod">Tél: </span> ${client.telephone} <br>
+                             <span class="style-blod">Entreprise: </span> ${client.entreprise} <br>
+                           
+                           </td>
+                        </tr>
+
+                         <tr>
+                           <td style="font-size:7px; line-height:9px;">
+                              <span class="style-blod"> Client d'arrivée:  </span> <br>
+                           </td>
+                           <td style="font-size:7px; line-height:9px;">
+                              
+                            
+                              <span class="style-blod">Nom:  </span>  ${commande.nomDestination} <br>
+                              <span class="style-blod">Tél:  </span>${commande.telephoneDestination} <br>
+                             
+                        
+                           </td>
                           </tr>
 
                           <tr>
+                          <td style="font-size:7px; line-height:9px;">
+                             <span class="style-blod"> Colis : </span><br>
+                          </td>
+                          <td style="font-size:7px; line-height:9px;">
+                             
+                             <span class="style-blod">Poids Total:  </span>  ${commande.colis[0].poidsTotale} <br>
+                             <span class="style-blod">Nombre:  </span>${commande.colis[0].nbr} <br>
+                         
+                          </td>
+                         </tr>
+
+                          <tr>
                            <td class="style-blod" style="font-size:7px; line-height:9px;" >
-                             N° Siret 849 307 210 00013 <br>
-                             N° TVA. FR 41 849 307 210 
+                              
+                              <span class="style-blod"> Livraison : </span><br>
+                       
                            </td>
-                           <td style="font-size:7px;"> Etat : ${commande.etat}</td>
+                           <td style="font-size:7px;"> 
+                             
+                             <span class="style-blod"> Numéro de commande : </span> ${commande.codeLivraison} <br>
+                             <span class="style-blod"> Etat : </span> ${commande.etat} <br>
+                             <span class="style-blod"> Date : </span> ${getDateFormaFrancaise(commande.date)} <br>
+                             <span class="style-blod"> Camion : </span> ${commande.typeCamion} <br>
+                             <span class="style-blod"> Heures : </span> ${getTime(commande.heure, commande.minute, commande.heureFin, commande.minuteFin)} <br>
+                             <span class="style-blod"> Etage : </span> ${commande.etageArrive} <br>
+                       
+                           </td>
                           </tr>
+
+                          <tr>
+                          <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                             
+                             <span class="style-blod"> Adresses : </span><br>
+                      
+                          </td>
+                          <td style="font-size:7px;"> 
+                            
+                            <span class="style-blod"> Adresse Départ : </span> ${commande.adresseDepart} <br>
+                            <span class="style-blod"> Adresse Arrivée : </span> ${commande.adresseArrive} <br>
+                            <span class="style-blod"> Distance : </span> ${commande.distance} km <br>
+                       
+                          </td>
+                         </tr>
 
                       </table>
                    </td>
@@ -157,29 +218,17 @@ return `
              </table>
              <br />
 
-             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse;>
-                <tr class="heading">
-                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Description </td>
-                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
-                </tr>
-                <tr>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre  ${getTime(commande.heure, commande.modeTime, commande.heureFin, commande.modeTimeFin)} le ${commande.date}</td>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${commande.factureAutomatique.length + commande.facture.length}</td>
-                </tr>
-
-             </table>
+           
 
             <table class="table-colis" cellpadding="0" cellspacing="0">
               
                <tr>
+                   
                    <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
+                   
                    <td>
-                        <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width:100%">
-                           
-                        ${getFactureGlobal(ht, tva, ttc, commande)}
-   
-                        </table>
-                     </td>
+                   
+                   </td>
                 </tr>
  
             </table>
@@ -277,6 +326,12 @@ function getColis(colis){
     return somme
 }
 
+
+function getHeures(commande){
+     
+
+
+}
 
 
 function getFacture(facture, facture2){
@@ -404,35 +459,44 @@ function getFacture2(facture, facture2){
 }
 
 
-function getTime(heure1,mode1,heure2,mode2){
+function getTime(heure1,minute1,heure2,minute2){
    
    let somme=""
-   if(heure1 < 10){
-      somme += heure1
-    }else{
-       if(mode1 == "PM"){
-         somme += (heure1+12)
-       }else{
-         somme += heure1
-       }
+   
+   somme += heure1
+   
+   if(minute1 < 10){
+      somme += ":0"+minute1
+   }else{
+      somme += ":"+minute1
+   }
       
-    }
-
-    somme += "h et "
+   somme += " - "
     
-    if(heure2 < 10){
-      somme += heure2
-    }else{
-      if(mode2 == "PM"){
-         somme += (heure2+12)
-       }else{
-         somme += heure2
-       }
-    
-    }
+   somme += heure2
+   
+   if(minute2 < 10){
+      somme += ":0"+minute2
+   }else{
+      somme += ":"+minute2
+   }
 
-    somme += "h"
-
-    return somme 
+   return somme 
 
 }
+
+function getDateFormaFrancaise(dateEnglaise){
+
+   let somme = ""  
+   let pos1 = dateEnglaise.indexOf("-")
+   somme += "/"+dateEnglaise.substr(0, pos1)
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+
+   pos1 = dateEnglaise.indexOf("-")
+   somme = "/"+dateEnglaise.substr(0, pos1) + somme
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+   
+   somme = dateEnglaise + somme
+   return somme 
+
+ }

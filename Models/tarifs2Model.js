@@ -21,6 +21,9 @@ const schemaTarifs=mongoose.Schema({
         coliSuppelmentaireTtc:{type:Number, default:0},
         poidsSupplementaireTtc:{type:Number, default:0},
         distanceSupplementaireTtc:{type:Number, default:0},
+        jours:[{
+           date:{type:String, defaul:""},
+        }],
 
   
 },
@@ -39,6 +42,10 @@ const Tarifs = mongoose.model('Tarifs',schemaTarifs)
 
 
 function validateTarif(Tarifs){
+
+    let itemJour = Joi.object().keys({
+        date:Joi.string().allow(""),
+    })
       
     let schema = Joi.object({
       
@@ -56,7 +63,8 @@ function validateTarif(Tarifs){
         coliSuppelmentaireTtc:Joi.number().allow('', null),
         poidsSupplementaireTtc:Joi.number().allow('', null),
         distanceSupplementaireTtc:Joi.number().allow('', null),
-
+        jours:Joi.array().items(itemJour),
+        
     })
       
     return schema.validate(Tarifs)

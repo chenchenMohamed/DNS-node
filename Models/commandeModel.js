@@ -34,9 +34,16 @@ const schemaCommande=mongoose.Schema({
     typeCamion:{type:String,default: ""},
    
     date:{type:String,default: ""},
+    dateNumber:{type:Number,default: 0},
     
-    telephone:{type:String,default: ""},
+    telephoneSansClient:{type:String,default: ""},
+    nomSansClient:{type:String,default: ""},
+
+    telephoneDestination:{type:String,default: ""},
+    nomDestination:{type:String,default: ""},
     
+    emailClient:{type:String,default: ""},
+
     heure:{type:Number,default: "0"},
     minute:{type:Number,default: "0"},
     modeTime:{type:String   ,default: "AM"},
@@ -49,6 +56,7 @@ const schemaCommande=mongoose.Schema({
 
     client:{type:String,default: "0"},
     createur:{type:String,default: ""},
+    idCreateur:{type:String,default: ""},
     chef:{type:String,default: ""},
     numClient:{type:Number,default: 0},
    
@@ -83,7 +91,10 @@ const schemaCommande=mongoose.Schema({
     tempsMunitation:{type:Number,default: 0},
 
     codeLivraison:{type:String,default: ""},
-    
+
+    raisonAnnulation :{type:String,default: ""},
+    detailsAnnulation :{type:String,default: ""}
+
 },
 { timestamps: true }
 )
@@ -122,6 +133,14 @@ function validateClientCommande(commande){
         facture:Joi.array().items(itemFacture),
         factureAutomatique:Joi.array().items(itemFacture),
 
+        telephoneSansClient:Joi.string().allow(""),
+        nomSansClient:Joi.string().allow(""),
+
+        telephoneDestination:Joi.string().allow(""),
+        nomDestination:Joi.string().allow(""),
+       
+        emailClient:Joi.string().allow(""),
+
         typeCamion:Joi.string().allow(""),
        
         adresseDepart:Joi.string().allow(""),
@@ -154,7 +173,10 @@ function validateClientCommande(commande){
         creneaux:Joi.number().allow(""),
 
         codeLivraison:Joi.string().allow(""),
-        
+
+        raisonAnnulation :Joi.string().allow(""),
+        detailsAnnulation :Joi.string().allow(""),
+     
         etat:Joi.string().allow(""),
     })
    
@@ -196,6 +218,8 @@ function validateAdminCommande(commande){
         factureAutomatique:Joi.array().items(itemFacture),
    
         typeCamion:Joi.string().allow(""),
+
+        telephone:Joi.number().allow(""),
        
         adresseDepart:Joi.string().allow(""),
         latDepart:Joi.number().allow(""),
@@ -238,7 +262,10 @@ function validateRequestCommandes(commande){
 
     let schema = Joi.object({
         etat:Joi.string().allow(""),
-        dateLivraison:Joi.string().allow(""),
+       
+        dateLivraisonDebut:Joi.string().allow(""),
+        dateLivraisonFin:Joi.string().allow(""),
+       
         dateCreation:Joi.string().allow(""),
         numClient:Joi.number().allow(""),
         limitPage:Joi.number().allow(""),
@@ -255,6 +282,8 @@ function validateCommandeSansClient(commande){
         adresseArrive:Joi.string().allow(""),
         etageDepart:Joi.string().allow(""),
         etageArrive:Joi.string().allow(""),
+
+        distance:Joi.number().allow(""),
         
         typeCamion:Joi.string().allow(""),
        
@@ -262,7 +291,7 @@ function validateCommandeSansClient(commande){
 
         date:Joi.string().allow(""),
 
-        telephone:Joi.string().allow(""),
+        telephone:Joi.number().allow(""),
 
         heure:Joi.number().allow(""),
         minute:Joi.number().allow(""),

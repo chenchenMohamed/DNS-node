@@ -1,29 +1,33 @@
-module.exports = (commande, client) => {
+module.exports = (commande, image) => {
     const today = new Date();
-
     const ht = getPrixHT(commande.factureAutomatique, commande.facture);
     const ttc = getPrixTTC(commande.factureAutomatique, commande.facture);
     const tva = (ttc - ht).toFixed(2);
 return `
     <!doctype html>
-    <html>
+    <html class="style-body">
        <head>
           <meta charset="utf-8">
           <title>PDF Result Template</title>
           <style>
-             .invoice-box {
+
+            .style-body{
+              width:100%;
+            }
+
+            .invoice-box {
              max-width: 800px;
              margin: auto;
-             padding: 30px;
+             padding: 15px;
              border: 1px solid #eee;
              box-shadow: 0 0 10px rgba(0, 0, 0, .15);
              font-size: 16px;
-             line-height: 15px;
+             line-height: 12px;
              font-family: 'Helvetica Neue', 'Helvetica',
              color: #555;
              }
              .margin-top {
-             margin-top: 50px;
+             margin-top: 12px;
              }
              .justify-center {
              text-align: center;
@@ -53,11 +57,11 @@ return `
              
        
              .invoice-box table tr.top table td {
-             padding-bottom: 15px;
+             padding-bottom: 20px;
              }
              .invoice-box table tr.top table td.title {
-             font-size: 15px;
-             line-height: 15px;
+             font-size: 20px;
+             line-height: 20px;
              color: #333;
              }
              .invoice-box table tr.information table td {
@@ -69,7 +73,7 @@ return `
              font-weight: bold;
              }
              .invoice-box table tr.details td {
-             padding-bottom: 10px;
+             padding-bottom: 20px;
              }
              .invoice-box table tr.item td {
              border-bottom: 1px solid #eee;
@@ -106,44 +110,48 @@ return `
              }
           </style>
        </head>
-       <body>
+       <body class="style-body">
           <div class="invoice-box">
              <table cellpadding="0" cellspacing="0">
                 <tr class="top">
                    <td colspan="2">
                       <table>
                          <tr>
-                            <td class="title">
-                               <img  src="./logo.png" style=" max-width:100px;">
+                            <td class="title" style="background-image: url('http://www.dna-transport.fr/logo.png'); height:50px;" >
                             </td>
-                            <td style="font-size:7px; line-height:9px;">
+                            <td style="font-size:7px;" >
                               Facture n° : ${commande.num} <br>
                               En Date du : (${`${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`})
                             </td>
                          </tr>
 
                          <tr>
-                            <td style="font-size:7px; line-height:9px;">
+                            <td style="font-size:7px;">
                                <span class="style-blod"> DNA Transport </span> <br>
                                1 square condillac appt 92 <br>
                                77100 Meaux
                             </td>
-                            <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod"> ${client.nom}  </span> <br>
-                              ${client.adresse}
+                            <td style="font-size:7px;">
+                              <span class="style-blod" style="font-size:7px;"> ${commande.nomSansClient}  </span> <br>
+                              ${commande.telephoneSansClient} <br>
+                              ${commande.emailClient} <br>
+                              <span class="style-blod" style="font-size:7px;"> Adresse départ : </span> ${commande.adresseDepart} <br>
+                              <span class="style-blod" style="font-size:7px;"> Adresse d'arrivée : </span> ${commande.adresseArrive} <br>
+                              
                             </td>
                          </tr>
 
                          <tr>
-                           <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
-                              <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
-                           </td>
+                            <td style="font-size:7px;">
+                                 <span class="style-blod" style="font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
+                                 <span style="color:blue;" style="font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
+                            </td>
+                        
                            <td></td>
                           </tr>
 
                           <tr>
-                           <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                           <td class="style-blod" style="font-size:7px;">
                              N° Siret 849 307 210 00013 <br>
                              N° TVA. FR 41 849 307 210 
                            </td>
@@ -157,14 +165,14 @@ return `
              </table>
              <br />
 
-             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse;>
+             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; font-size:7px;">
                 <tr class="heading">
-                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Description </td>
-                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
+                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;">Description </td>
+                   <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;"> Quantité </td>
                 </tr>
                 <tr>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre  ${getTime(commande.heure, commande.modeTime, commande.heureFin, commande.modeTimeFin)} le ${commande.date}</td>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${commande.factureAutomatique.length + commande.facture.length}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px; ">Prestations de transport entre  ${getTime(commande.heure, commande.modeTime, commande.heureFin, commande.modeTimeFin)} le ${commande.date}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.factureAutomatique.length + commande.facture.length}</td>
                 </tr>
 
              </table>
@@ -172,11 +180,22 @@ return `
             <table class="table-colis" cellpadding="0" cellspacing="0">
               
                <tr>
-                   <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
+                   <td style="color:transparent; width:50%"></td>
                    <td>
                         <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width:100%">
                            
-                        ${getFactureGlobal(ht, tva, ttc, commande)}
+                           <tr >
+                              <td style="border: 1px solid black; text-align:center; font-size:7px;">Total HT </td>
+                              <td style="border: 1px solid black;  text-align:center; font-size:7px;"> ${ht.toFixed(2)} €</td>
+                           </tr>
+                           <tr>
+                              <td style="border: 1px solid black; text-align:center; font-size:7px;"> TVA 20,00% </td>
+                              <td style="border: 1px solid black; text-align:center; font-size:7px;">${tva} €</td>
+                           </tr>
+                           <tr class="heading">
+                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;">Total TTC </td>
+                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;"> ${ttc.toFixed(2)} €</td>
+                           </tr>
    
                         </table>
                      </td>
@@ -187,13 +206,13 @@ return `
             <table class="table-colis" cellpadding="0" cellspacing="0">
               
                 <tr>
-                    <td style="width:50%; font-size:7px; line-height:9px;">
+                    <td style="width:50%; font-size:7px;">
                     Conditions de paiement : paiement à réception de facture<br>
                     Mode de paiement : par virement ou chèque<br>
                     Nous vous remercions de votre confiance<br>
                     Cordialement
                     </td>
-                    <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
+                    <td style="color:transparent; width:50%"></td>
                 </tr>
 
             </table>
@@ -205,44 +224,6 @@ return `
     `;
 };
 
-
-
-function getFactureGlobal(ht, tva, ttc, commande){
-      
-   let somme = `  
-   
-   <tr >
-      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Total HT </td>
-      <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.toFixed(2)} €</td>
-   </tr>
-   <tr>
-      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA 20,00% </td>
-      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${tva} €</td>
-   </tr>
-   <tr class="heading">
-     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Total TTC </td>
-     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.toFixed(2)} €</td>
-   </tr> 
-   
-   ` 
-
-   if(commande.etat == "Annuler avec refacturation"){
-      somme += `
-         <tr class="heading">
-            <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Raison l'annulation </td>
-            <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${commande.raisonAnnulation + " : "+ commande.detailsAnnulation} </td>
-         </tr>   
-         <tr class="heading">
-           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">  60% de total TTC </td>
-           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).toFixed(2)} €</td>
-         </tr> 
-      
-      ` 
-   }
-
-   return somme
-
-}
 
 function getColis(colis){
     let somme = ``
@@ -266,9 +247,9 @@ function getColis(colis){
 
         somme += `
           <tr class="item">
-            <td style="font-size:7px; line-height:9px;">${colis[i].nbr}</td>
-            <td class="table-colis-2" style="font-size:7px; line-height:9px;">${prixTotale} kg</td>
-            <td style="font-size:7px; line-height:9px;">${dimensions}</td>
+            <td style="font-size:7px;">${colis[i].nbr}</td>
+            <td style="font-size:7px;" class="table-colis-2">${prixTotale} kg</td>
+            <td style="font-size:7px;" >${dimensions}</td>
           </tr>
         `
 
@@ -290,9 +271,9 @@ function getFacture(facture, facture2){
               
         somme += `
           <tr class="item">
-            <td style="font-size:7px; line-height:9px;">${facture[i].titre}</td>
-            <td style="font-size:7px; line-height:9px;" class="table-colis-2">${facture[i].valeur} €</td>
-            <td style="font-size:7px; line-height:9px;">${facture[i].valeurTtc} €</td>
+            <td style="font-size:7px;">${facture[i].titre}</td>
+            <td style="font-size:7px;" class="table-colis-2">${facture[i].valeur} €</td>
+            <td style="font-size:7px;">${facture[i].valeurTtc} €</td>
           </tr>
         `
 
@@ -304,9 +285,9 @@ function getFacture(facture, facture2){
               
         somme += `
           <tr class="item">
-            <td style="font-size:7px; line-height:9px;">${facture2[i].titre}</td>
-            <td style="font-size:7px; line-height:9px;" class="table-colis-2">${facture2[i].valeur} €</td>
-            <td style="font-size:7px; line-height:9px;">${facture2[i].valeurTtc} €</td>
+            <td style="font-size:7px;">${facture2[i].titre}</td>
+            <td style="font-size:7px;" class="table-colis-2">${facture2[i].valeur} €</td>
+            <td style="font-size:7px;">${facture2[i].valeurTtc} €</td>
           </tr>
         `
 
@@ -317,6 +298,9 @@ function getFacture(facture, facture2){
 
 
 function getPrixHT(facture, facture2){
+
+   console.log(facture);
+
    let prixTotale = 0;
    let prixTotaleTtc = 0;
 
@@ -377,25 +361,25 @@ function getFacture2(facture, facture2){
    
     somme += `
       <tr class="item">
-        <td style="font-size:7px; line-height:9px;">Prix net:</td>
-        <td style="font-size:7px; line-height:9px;" class="table-colis-2"></td>
-        <td style="font-size:7px; line-height:9px;">${prixTotale} €</td>
+        <td style="font-size:7px;">Prix net:</td>
+        <td style="font-size:7px;" class="table-colis-2"></td>
+        <td style="font-size:7px;">${prixTotale} €</td>
       </tr>
     `
 
     somme += `
       <tr class="item">
-        <td style="font-size:7px; line-height:9px;">TTC:</td>
-        <td style="font-size:7px; line-height:9px;" class="table-colis-2"></td>
-        <td style="font-size:7px; line-height:9px;">${prixTotaleTtc - prixTotale} €</td>
+        <td style="font-size:7px;">TTC:</td>
+        <td style="font-size:7px;" class="table-colis-2"></td>
+        <td style="font-size:7px;">${prixTotaleTtc - prixTotale} €</td>
       </tr>
     `
     
     somme += `
       <tr class="item">
-        <td style="font-size:7px; line-height:9px;">Prix avec TTC:</td>
-        <td style="font-size:7px; line-height:9px;" class="table-colis-2"></td>
-        <td style="font-size:7px; line-height:9px; line-height:9px;">${prixTotaleTtc} € </td>
+        <td style="font-size:7px;">Prix avec TTC:</td>
+        <td style="font-size:7px;" class="table-colis-2"></td>
+        <td style="font-size:7px;">${prixTotaleTtc} € </td>
       </tr>
     `
 

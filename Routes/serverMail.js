@@ -3,8 +3,13 @@ const nodemailer = require('nodemailer');
 const express=require('express')
 const router=express.Router()
 const {User, validateModifierMotPasse} =require('../Models/userModel')
+const {Commande, validateStatistiqueAdmin, validateClientCommande, validateCommentaires, validateRequestCommandes, validateCommandeSansClient} =require('../Models/commandeModel')
+
+const pdfTemplate5 = require('../documents5');
+const pdfTemplate4 = require('../documents4');
+
 //Step 1
-let transporter = nodemailer.createTransport({
+/*let transporter = nodemailer.createTransport({
     service: 'gmail',
     host:'smtp.gmail.com',
     port: '465',
@@ -13,6 +18,70 @@ let transporter = nodemailer.createTransport({
         user: process.env.EMAIL,
         pass: process.env.PASSWORD
     }
+})
+*/
+
+let transporter = nodemailer.createTransport({
+  host: 'smtp.ionos.fr',
+  port: 587,
+  auth: {
+     user: 'admin@dna-transport.fr',
+     pass: 'DNAtransport123456'
+  }
+});
+
+
+router.post('/notificationCourse/:id', async(req, res)=>{
+
+
+  console.log(req.body)
+
+  let user={}
+
+  if(req.params.id != "0"){
+    user = await User.findById(req.params.id)
+  }else{
+
+    let mailOptions = {
+      from: "admin@dna-transport.fr",
+      to: "info@dna-transport.fr",
+      subject: req.body.etat,
+      html: pdfTemplate4(req.body)
+    }
+  
+  
+    // Step  3
+    transporter.sendMail(mailOptions, function(err,data){
+        if(err){
+            console.log(err)
+          return res.send({status:false})
+        }else{  
+          return res.send({status:true})
+        }
+    })
+  
+    return
+  }
+  
+  let mailOptions = {
+    from: "admin@dna-transport.fr",
+    to: "info@dna-transport.fr",
+    subject: req.body.etat,
+    html: pdfTemplate5(req.body, user)
+  }
+
+
+  // Step  3
+  transporter.sendMail(mailOptions, function(err,data){
+      if(err){
+          console.log(err)
+        return res.send({status:false})
+      }else{  
+        return res.send({status:true})
+      }
+  })
+
+
 })
 
 

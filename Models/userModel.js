@@ -62,7 +62,7 @@ function validateUser(user){
         numChef: Joi.string().allow('', null),
       
         email: Joi.string().email(),
-        password: Joi.string().min(6).required(),
+        password: Joi.string().allow('', null),
         type: Joi.string().allow('', null),
    
     })
@@ -82,12 +82,16 @@ function validateUpdateUser(user){
         lat: Joi.number().allow('', null),
         lng: Joi.number().allow('', null),
         
+        
+        carteIdentite: Joi.string().allow('', null),
         entreprise: Joi.string().allow('', null),
       
         email: Joi.string().email(),
-        password: Joi.string().min(6).required(),
+        password: Joi.string().allow('', null),
         newEmail: Joi.string().email().allow('', null),
-        newPassword: Joi.string().min(6).allow('', null)
+        newPassword: Joi.string().allow('', null),
+
+        username:Joi.string().allow('', null),
         
     })
 

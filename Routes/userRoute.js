@@ -89,7 +89,7 @@ router.post('/registerClient',verifytoken, async(req,res)=>{
     if(emailExist) return res.send({status:false,message:'errorRegister'})
 
     const usernameExist = await User.findOne({ username: req.body.username});
-    if(usernameExist) return res.send({status:false,message:'errorRegister'})
+    if(usernameExist) return res.send({status:false,message:'errorUpdateCompte4'})
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
@@ -99,6 +99,7 @@ router.post('/registerClient',verifytoken, async(req,res)=>{
 
     const user=new User({
         nom:req.body.nom,
+        
         num:num,
         prenom:req.body.prenom,
         telephone:req.body.telephone,
@@ -124,6 +125,9 @@ router.post('/registerClient',verifytoken, async(req,res)=>{
 
     return res.send({status:true,resultat:result})
 })
+
+
+
 
 
 router.post('/login',async(req,res)=>{
@@ -181,7 +185,7 @@ router.post('/newPassword',async(req,res)=>{
 
 router.get('/detailsAdmin/:id', verifytoken, async(req,res)=>{
   
-    if(!req.params.id && req.user.user.role != "admin")
+    if(!req.params.id && req.user.user.role == "sousClient")
     return res.status(400).json('articleId expected');
     
     const result=await User.findById(req.params.id)
@@ -195,6 +199,7 @@ router.get('/details', verifytoken, async(req,res)=>{
   result.password = ""
   return res.send({status:true,resultat:result})
 })
+
 
 
 router.post('/update', verifytoken, async(req,res)=>{
@@ -231,8 +236,79 @@ router.post('/update', verifytoken, async(req,res)=>{
        newUser.password = hashPassword
     }
 
+    if(req.body.username != req.user.user.username){
+        const users = await User.find({username:req.body.username})
+        if(users.length > 0) return res.send({status:false,message:'errorUpdateCompte4'});
+    }
+
     const result = await User.findByIdAndUpdate(req.user.user.id,{
+        carteIdentite:req.body.carteIdentite,
         nom:req.body.nom,
+        username:req.body.username,
+        prenom:req.body.prenom,
+        telephone:req.body.telephone,
+        adresse:req.body.adresse,
+        lat:req.body.lat,
+        lng: req.body.lng,
+        email:newUser.email,
+        password: newUser.password,
+        entreprise: req.body.entreprise
+    })
+        
+    return res.send({status:true,resultat:result})
+
+ 
+})
+
+
+router.post('/updateAdmin/:id', verifytoken, async(req,res)=>{
+
+    const {error}=validateUpdateUser(req.body)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+
+
+    const users = await User.find({_id:req.params.id})
+    
+    
+    if(users.length == 0) return res.send({status:false,message:'errorUpdateCompte1'});
+
+    const user = users[0]
+
+    if(req.body.email != user.email){
+        return res.send({status:false,message:'errorUpdateCompte1'});
+    }
+
+    const newUser = user
+
+   
+
+    
+    
+    if(req.body.newEmail != null && req.body.newEmail != ""){
+        const users2 = await User.find({email:req.body.newEmail})
+        if(users2.length > 0 && req.body.email != req.body.newEmail) return res.send({status:false,message:'errorUpdateCompte2'});
+        newUser.email = req.body.newEmail
+    }
+
+    const validationPassword = await bcrypt.compare(req.body.password, user.password)
+    if(!validationPassword) return res.send({status:false, message:'errorUpdateCompte3'});
+    
+    if(req.body.newPassword != null && req.body.newPassword != ""){
+       var hashPassword = ""
+       const salt = await bcrypt.genSalt(10);
+       hashPassword = await bcrypt.hash(req.body.newPassword, salt);
+       newUser.password = hashPassword
+    }
+
+    if(req.body.username != user.username){
+        const users = await User.find({username:req.body.username})
+        if(users.length > 0) return res.send({status:false,message:'errorUpdateCompte4'});
+    }
+
+    const result = await User.findByIdAndUpdate(user.id,{
+        carteIdentite:req.body.carteIdentite,
+        nom:req.body.nom,
+        username:req.body.username,
         prenom:req.body.prenom,
         telephone:req.body.telephone,
         adresse:req.body.adresse,
@@ -285,6 +361,13 @@ router.post('/listesClients', verifytoken, async(req,res)=>{
     return res.send({status:true,resultat:result})
 })
 
+router.post('/allClients', verifytoken, async(req,res)=>{
+
+    result=await User.find({role:"client"})
+  
+    return res.send({status:true,resultat:result})
+})
+
 router.post('/listesSousClients', verifytoken, async(req,res)=>{
 
     const options = {
@@ -329,6 +412,21 @@ router.post('/supprimerSousClients', verifytoken, async(req,res)=>{
     }
 
     if(await User.findOneAndDelete({num:req.body.num})){
+        return res.send({status:true})
+    }else{
+        return res.send({status:false.err})
+    }
+
+})
+
+router.post('/supprimerClients', verifytoken, async(req,res)=>{
+
+    
+    if(req.user.user.role != "admin"){
+      return res.send({status:false})
+    }
+
+    if(await User.findOneAndDelete({_id:req.body.id})){
         return res.send({status:true})
     }else{
         return res.send({status:false.err})

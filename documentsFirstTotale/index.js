@@ -1,9 +1,34 @@
-module.exports = (commande, client) => {
+module.exports = (request, client) => {
     const today = new Date();
 
-    const ht = getPrixHT(commande.factureAutomatique, commande.facture);
-    const ttc = getPrixTTC(commande.factureAutomatique, commande.facture);
+    var sommeHt = 0;
+
+    for(let i = 0; i < request.commandes.length; i++){
+        if(request.commandes[i].etat == "Annuler avec refacturation"){
+         sommeHt += (getPrixHT(request.commandes[i].factureAutomatique, request.commandes[i].facture)* 0.6);
+      
+        }else{
+         sommeHt += getPrixHT(request.commandes[i].factureAutomatique, request.commandes[i].facture);
+        }
+    }
+    const ht = sommeHt;
+  
+    var sommeTtc = 0;
+
+    for(let i = 0; i < request.commandes.length; i++){
+      if(request.commandes[i].etat == "Annuler avec refacturation"){
+         sommeTtc += (getPrixTTC(request.commandes[i].factureAutomatique, request.commandes[i].facture) * 0.6);
+       
+      }else{
+         sommeTtc += getPrixTTC(request.commandes[i].factureAutomatique, request.commandes[i].facture);
+   
+      }
+    }
+    
+    const ttc = sommeTtc;
+
     const tva = (ttc - ht).toFixed(2);
+
 return `
     <!doctype html>
     <html>
@@ -117,7 +142,6 @@ return `
                                <img  src="./logo.png" style=" max-width:100px;">
                             </td>
                             <td style="font-size:7px; line-height:9px;">
-                              Facture n° : ${commande.num} <br>
                               En Date du : (${`${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`})
                             </td>
                          </tr>
@@ -147,7 +171,6 @@ return `
                              N° Siret 849 307 210 00013 <br>
                              N° TVA. FR 41 849 307 210 
                            </td>
-                           <td style="font-size:7px;"> Etat : ${commande.etat}</td>
                           </tr>
 
                       </table>
@@ -163,8 +186,8 @@ return `
                    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
                 </tr>
                 <tr>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre  ${getTime(commande.heure, commande.modeTime, commande.heureFin, commande.modeTimeFin)} le ${commande.date}</td>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${commande.factureAutomatique.length + commande.facture.length}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre   le ${request.dateDebut} et le ${request.dateFin}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${request.commandes.length}</td>
                 </tr>
 
              </table>
@@ -176,7 +199,7 @@ return `
                    <td>
                         <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width:100%">
                            
-                        ${getFactureGlobal(ht, tva, ttc, commande)}
+                        ${getFactureGlobal(ht, tva, ttc)}
    
                         </table>
                      </td>
@@ -207,7 +230,7 @@ return `
 
 
 
-function getFactureGlobal(ht, tva, ttc, commande){
+function getFactureGlobal(ht, tva, ttc){
       
    let somme = `  
    
@@ -225,20 +248,6 @@ function getFactureGlobal(ht, tva, ttc, commande){
    </tr> 
    
    ` 
-
-   if(commande.etat == "Annuler avec refacturation"){
-      somme += `
-         <tr class="heading">
-            <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Raison l'annulation </td>
-            <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${commande.raisonAnnulation + " : "+ commande.detailsAnnulation} </td>
-         </tr>   
-         <tr class="heading">
-           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">  60% de total TTC </td>
-           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).toFixed(2)} €</td>
-         </tr> 
-      
-      ` 
-   }
 
    return somme
 

@@ -38,13 +38,12 @@ app.use(express.static('uploads'));
 app.use(express.static('sliderAccueil'));
 
 app.use('/uploads', express.static(__dirname + '/uploads/'));
+app.use('/documents3', express.static(__dirname + '/documents3/'));
 app.use('/sliderAccueil', express.static(__dirname + '/sliderAccueil/'));
 
 app.get("/", (req, res) => {
     res.send("hello world");
 });
-
-
 
 app.listen(process.env.PORT || 3000,()=>{
     console.log("server conected to port 3000")
