@@ -225,18 +225,11 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     let timeCurrent = dateFormat(new Date(), "HH:MM");
     let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
    
-    let dateLivraison = req.body.date;
-   
-    let year = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-   
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let mois = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let day = Number(dateLivraison.substring(0,100))
-
+    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let year = Number(dateLivraison.substring(0,4))
+    let mois = Number(dateLivraison.substring(5,7))
+    let day = Number(dateLivraison.substring(8,10))  
+    
     let sommeDate = year * 10000 + mois * 100 + day
 
     console.log(sommeDate)
@@ -319,20 +312,14 @@ router.post('/newCommandeSansClient', async(req,res)=>{
     let timeCurrent = dateFormat(new Date(), "HH:MM");
     let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
     
-    let dateLivraison = req.body.date;
-   
-    let year = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-   
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let mois = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let day = Number(dateLivraison.substring(0,100))
-
+    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let year = Number(dateLivraison.substring(0,4))
+    let mois = Number(dateLivraison.substring(5,7))
+    let day = Number(dateLivraison.substring(8,10))  
     let sommeDate = year * 10000 + mois * 100 + day
 
+    console.log(sommeDate)
+   
     const commande=new Commande({
         etat:req.body.etat,
         
@@ -419,19 +406,13 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
 
 
-    let dateLivraison = req.body.date;
-   
-    let year = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-   
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let mois = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-
-    dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-
-    let day = Number(dateLivraison.substring(0,100))
-
+    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let year = Number(dateLivraison.substring(0,4))
+    let mois = Number(dateLivraison.substring(5,7))
+    let day = Number(dateLivraison.substring(8,10))  
     let sommeDate = year * 10000 + mois * 100 + day
+
+    console.log(sommeDate)
 
   
     const result=await Commande.findByIdAndUpdate(req.params.idCommande,
@@ -641,7 +622,7 @@ router.post('/commandes', verifytoken, async(req,res)=>{
         customLabels: myCustomLabels,
         //populate: 'client'
         sort:{
-            dateLivraison: 1 
+            dateNumber: 1 
         }
     };
 
@@ -654,12 +635,11 @@ router.post('/commandes', verifytoken, async(req,res)=>{
 
     if(req.body.dateLivraisonDebut != ""){
         
-        let dateLivraison = req.body.dateLivraisonDebut;
-        let year = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-        dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-        let mois = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-        dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-        let day = Number(dateLivraison.substring(0,100))
+        let dateLivraison =  dateFormat(new Date(req.body.dateLivraisonDebut), "yyyy-mm-dd");
+        let year = Number(dateLivraison.substring(0,4))
+        let mois = Number(dateLivraison.substring(5,7))
+        let day = Number(dateLivraison.substring(8,10))  
+       
         let sommeDate = year * 10000 + mois * 100 + day
 
         filter.push({"dateNumber":{$gte:sommeDate}})
@@ -667,12 +647,10 @@ router.post('/commandes', verifytoken, async(req,res)=>{
 
     if(req.body.dateLivraisonFin != ""){
 
-        let dateLivraison = req.body.dateLivraisonFin;
-        let year = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-        dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-        let mois = Number(dateLivraison.substring(0,dateLivraison.indexOf("-")))
-        dateLivraison = dateLivraison.substring(dateLivraison.indexOf("-")+1, 100)
-        let day = Number(dateLivraison.substring(0,100))
+        let dateLivraison =  dateFormat(new Date(req.body.dateLivraisonFin), "yyyy-mm-dd");
+        let year = Number(dateLivraison.substring(0,4))
+        let mois = Number(dateLivraison.substring(5,7))
+        let day = Number(dateLivraison.substring(8,10))  
         let sommeDate = year * 10000 + mois * 100 + day
 
         filter.push({"dateNumber":{$lte:sommeDate}})
@@ -729,7 +707,7 @@ router.post('/newsCommandes', verifytoken, async(req,res)=>{
         customLabels: myCustomLabels,
         //populate: 'client'
         sort:{
-            updatedAt: -1 
+            dateNumber: 1 
         }
     };
 
@@ -760,7 +738,7 @@ router.post('/desactivatenewsCommandesAdmin', verifytoken, async(req,res)=>{
         customLabels: myCustomLabels,
         //populate: 'client'
         sort:{
-            updatedAt: -1 
+            dateNumber: 1 
         }
     };
 
@@ -831,7 +809,7 @@ router.post('/listCommandesClient', verifytoken, async(req,res)=>{
         customLabels: myCustomLabels,
         //populate: 'client'
         sort:{
-            dateLivraison:1
+            dateNumber: 1 
         }
     };
   

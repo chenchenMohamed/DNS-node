@@ -143,7 +143,7 @@ function getFacture(commande, client, facture, facture2){
               
         somme += `
           <tr class="item">
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.date} </td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${getDateFormaFrancaise(commande.date)} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.codeLivraison} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.nom} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.adresse} </td>
@@ -159,10 +159,11 @@ function getFacture(commande, client, facture, facture2){
     for(let i = 0; i < facture2.length; i++){
         prixTotale += facture2[i].valeur;
         prixTotaleTtc += facture2[i].valeurTtc;
+        let date = getDateFormaFrancaise(commande.date)
               
         somme += `
         <tr class="item">
-          <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.date} </td>
+          <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
           <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.codeLivraison} </td>
           <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.nom} </td>
           <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.adresse} </td>
@@ -179,7 +180,45 @@ function getFacture(commande, client, facture, facture2){
     return somme
 }
 
+function getDateFormaFrancaise(dateEnglaise){
+  let somme = ""  
+  let pos1 = dateEnglaise.indexOf("-")
+  somme += "/"+dateEnglaise.substr(0, pos1)
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
 
+  pos1 = dateEnglaise.indexOf("-")
+  somme = "/"+dateEnglaise.substr(0, pos1) + somme
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+  
+  somme = dateEnglaise + somme
+  return somme 
+}
+
+function getTime(heure1,minute1,heure2,minute2){
+   
+  let somme=""
+  
+  somme += heure1
+  
+  if(minute1 < 10){
+     somme += ":0"+minute1
+  }else{
+     somme += ":"+minute1
+  }
+     
+  somme += " - "
+   
+  somme += heure2
+  
+  if(minute2 < 10){
+     somme += ":0"+minute2
+  }else{
+     somme += ":"+minute2
+  }
+
+  return somme 
+
+}
 
 function getFacture2(facture, facture2){
     let prixTotale = 0;
@@ -225,4 +264,18 @@ function getFacture2(facture, facture2){
 
 
     return somme
+}
+
+function getDateFormaFrancaise(dateEnglaise){
+  let somme = ""  
+  let pos1 = dateEnglaise.indexOf("-")
+  somme += "/"+dateEnglaise.substr(0, pos1)
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+
+  pos1 = dateEnglaise.indexOf("-")
+  somme = "/"+dateEnglaise.substr(0, pos1) + somme
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+  
+  somme = dateEnglaise + somme
+  return somme 
 }

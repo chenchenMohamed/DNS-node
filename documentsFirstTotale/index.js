@@ -186,7 +186,7 @@ return `
                    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
                 </tr>
                 <tr>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre   le ${request.dateDebut} et le ${request.dateFin}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre   le ${getDateFormaFrancaise(request.dateDebut)} et le ${getDateFormaFrancaise(request.dateFin)}</td>
                    <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${request.commandes.length}</td>
                 </tr>
 
@@ -445,3 +445,18 @@ function getTime(heure1,mode1,heure2,mode2){
     return somme 
 
 }
+
+
+function getDateFormaFrancaise(dateEnglaise){
+   let somme = ""  
+   let pos1 = dateEnglaise.indexOf("-")
+   somme += "/"+dateEnglaise.substr(0, pos1)
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+ 
+   pos1 = dateEnglaise.indexOf("-")
+   somme = "/"+dateEnglaise.substr(0, pos1) + somme
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+   
+   somme = dateEnglaise + somme
+   return somme 
+ }

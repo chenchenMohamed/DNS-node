@@ -163,7 +163,7 @@ return `
                    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
                 </tr>
                 <tr>
-                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre  ${getTime(commande.heure, commande.modeTime, commande.heureFin, commande.modeTimeFin)} le ${commande.date}</td>
+                   <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Prestations de transport entre  ${getTime(commande.heure, commande.minute, commande.heureFin, commande.minuteFin)} le ${getDateFormaFrancaise(commande.date)}</td>
                    <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${commande.factureAutomatique.length + commande.facture.length}</td>
                 </tr>
 
@@ -404,35 +404,41 @@ function getFacture2(facture, facture2){
 }
 
 
-function getTime(heure1,mode1,heure2,mode2){
+function getTime(heure1,minute1,heure2,minute2){
    
-   let somme=""
-   if(heure1 < 10){
-      somme += heure1
+   let somme= heure1+":"
+   if(minute1 < 10){
+      somme += "0"+minute1
     }else{
-       if(mode1 == "PM"){
-         somme += (heure1+12)
-       }else{
-         somme += heure1
-       }
-      
+      somme += minute1
     }
 
-    somme += "h et "
+    somme += " et "
     
-    if(heure2 < 10){
-      somme += heure2
+    somme += heure2+":"
+
+   if(minute2 < 10){
+      somme += "0"+minute2
     }else{
-      if(mode2 == "PM"){
-         somme += (heure2+12)
-       }else{
-         somme += heure2
-       }
-    
+      somme += minute2
     }
 
-    somme += "h"
-
+    somme += " "
+    
     return somme 
 
 }
+
+function getDateFormaFrancaise(dateEnglaise){
+   let somme = ""  
+   let pos1 = dateEnglaise.indexOf("-")
+   somme += "/"+dateEnglaise.substr(0, pos1)
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+ 
+   pos1 = dateEnglaise.indexOf("-")
+   somme = "/"+dateEnglaise.substr(0, pos1) + somme
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+   
+   somme = dateEnglaise + somme
+   return somme 
+ }

@@ -139,12 +139,13 @@ function getFacture(request){
     let details = ""
     let somme = ``;
     for(let i = 0; i < request.commandes.length; i++){
+        let date = getDateFormaFrancaise(request.commandes[i].date)
         prixTotale = getPrixHt(request.commandes[i].facture, request.commandes[i].factureAutomatique);
         prixTotaleTtc = getPrixTtc(request.commandes[i].facture, request.commandes[i].factureAutomatique);
         details = getDetails(request.commandes[i].facture, request.commandes[i].factureAutomatique);
         somme += `
           <tr class="item">
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].date} </td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} - ${request.commandes[i].adresseArrive} </td>
@@ -178,8 +179,6 @@ function getPrixHt(facture, facture2){
         prixTotaleTtc += facture2[i].valeurTtc;
               
     }
-
-   
 
     return prixTotale
 }
@@ -215,4 +214,44 @@ function getDetails(facture, facture2){
   }
 
   return somme
+}
+
+function getTime(heure1,minute1,heure2,minute2){
+   
+  let somme=""
+  
+  somme += heure1
+  
+  if(minute1 < 10){
+     somme += ":0"+minute1
+  }else{
+     somme += ":"+minute1
+  }
+     
+  somme += " - "
+   
+  somme += heure2
+  
+  if(minute2 < 10){
+     somme += ":0"+minute2
+  }else{
+     somme += ":"+minute2
+  }
+
+  return somme 
+
+}
+
+function getDateFormaFrancaise(dateEnglaise){
+  let somme = ""  
+  let pos1 = dateEnglaise.indexOf("-")
+  somme += "/"+dateEnglaise.substr(0, pos1)
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+
+  pos1 = dateEnglaise.indexOf("-")
+  somme = "/"+dateEnglaise.substr(0, pos1) + somme
+  dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+  
+  somme = dateEnglaise + somme
+  return somme 
 }

@@ -25,7 +25,7 @@ let transporter = nodemailer.createTransport({
   host: 'smtp.ionos.fr',
   port: 587,
   auth: {
-     user: 'admin@dna-transport.fr',
+     user: 'contact@dna-transport.fr',
      pass: 'DNAtransport123456'
   }
 });
@@ -43,12 +43,11 @@ router.post('/notificationCourse/:id', async(req, res)=>{
   }else{
 
     let mailOptions = {
-      from: "admin@dna-transport.fr",
-      to: "info@dna-transport.fr",
+      from: "contact@dna-transport.fr",
+      to: "contact@dna-transport.fr",
       subject: req.body.etat,
       html: pdfTemplate4(req.body)
     }
-  
   
     // Step  3
     transporter.sendMail(mailOptions, function(err,data){
@@ -64,8 +63,8 @@ router.post('/notificationCourse/:id', async(req, res)=>{
   }
   
   let mailOptions = {
-    from: "admin@dna-transport.fr",
-    to: "info@dna-transport.fr",
+    from: "contact@dna-transport.fr",
+    to: "contact@dna-transport.fr",
     subject: req.body.etat,
     html: pdfTemplate5(req.body, user)
   }
