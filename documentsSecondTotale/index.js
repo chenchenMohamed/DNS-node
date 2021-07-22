@@ -105,15 +105,16 @@ return `
             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse;>
                
                <tr class="heading" style="background-color:gray;">
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Date livraison </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> N° de commande </td>
-                  
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Nom du client </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Adresse de livraison </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Date livraison </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> N° de commande </td>
+               
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Nom du client </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Adresses de Livraison </td>
 
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Détails </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix(HT) </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix TTC(20%) </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Détails </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix HT </td>
+               <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix TTC </td>
+
 
                </tr>
               
@@ -130,6 +131,20 @@ return `
 };
 
 
+function  getNumberFixed2(number){
+  let numberString = number + "";
+  let posPoint = numberString.indexOf(".");
+  if(posPoint > -1){
+    let int = numberString.substr(0,posPoint);
+    let desimale = numberString.substr(posPoint+1,2);
+    if(desimale.length == 1){
+      desimale += "0"
+    }
+    return(int + ","+desimale);
+  }else{
+    return numberString;
+  }
+}
 
 
 function getFacture(request){
@@ -140,21 +155,48 @@ function getFacture(request){
     let somme = ``;
     for(let i = 0; i < request.commandes.length; i++){
         let date = getDateFormaFrancaise(request.commandes[i].date)
+
         prixTotale = getPrixHt(request.commandes[i].facture, request.commandes[i].factureAutomatique);
         prixTotaleTtc = getPrixTtc(request.commandes[i].facture, request.commandes[i].factureAutomatique);
+        
+
         details = getDetails(request.commandes[i].facture, request.commandes[i].factureAutomatique);
-        somme += `
-          <tr class="item">
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} - ${request.commandes[i].adresseArrive} </td>
        
-            <td style="border: 1px solid black; text-align:center; font-size:7px;" >${details}</td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${(prixTotale).toFixed(2)} €</td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${(prixTotaleTtc).toFixed(2)} €</td>
-          </tr>
-        `
+        let raison = ""
+        if(request.commandes[i].etat == "Annuler avec refacturation"){
+          if( request.commandes[i].raisonAnnulation != 'Autre')
+          raison = "("+request.commandes[i].raisonAnnulation+")"
+          else
+          raison = "("+request.commandes[i].detailsAnnulation+")"
+        }
+
+        if(request.commandes[i].etat != "Annuler avec refacturation"){
+            somme += `
+              <tr class="item">
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} /// ${request.commandes[i].adresseArrive} </td>
+           
+                <td style="border: 1px solid black; text-align:center; font-size:7px;" >${details}</td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(prixTotale)}€</td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2 (prixTotaleTtc)}€</td>
+              </tr>
+            `
+        }else{
+            somme += `
+              <tr class="item">
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} /// ${request.commandes[i].adresseArrive} </td>
+           
+                <td style="border: 1px solid black; text-align:center; font-size:7px;" >${details} <br> <span style="font-weight: 800;"> ${raison} </span> </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;"> <span style="text-decoration: line-through;" >${getNumberFixed2(prixTotale)}€ </span> <br> <span>${getNumberFixed2(prixTotale * 0.5)}€ </span> </td>
+                <td style="border: 1px solid black; text-align:center; font-size:7px;"> <span style="text-decoration: line-through;" >${getNumberFixed2 (prixTotaleTtc)}€ </span> <br> <span>${getNumberFixed2(prixTotaleTtc * 0.5)}€ </span></td>
+              </tr>
+            `
+        }
 
     }
 
@@ -177,7 +219,6 @@ function getPrixHt(facture, facture2){
     for(let i = 0; i < facture2.length; i++){
         prixTotale += facture2[i].valeur;
         prixTotaleTtc += facture2[i].valeurTtc;
-              
     }
 
     return prixTotale

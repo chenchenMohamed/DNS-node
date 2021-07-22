@@ -246,7 +246,7 @@ function getFactureGlobal(ht, tva, ttc, commande){
   
   <tr >
      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Total HT </td>
-     <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.toFixed(2)} €</td>
+     <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.tofixed(2).replace(".",",")} €</td>
   </tr>
   <tr>
      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA 20,00% </td>
@@ -254,7 +254,7 @@ function getFactureGlobal(ht, tva, ttc, commande){
   </tr>
   <tr class="heading">
     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Total TTC </td>
-    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.toFixed(2)} €</td>
+    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.tofixed(2).replace(".",",")} €</td>
   </tr> 
   
   ` 
@@ -267,7 +267,7 @@ function getFactureGlobal(ht, tva, ttc, commande){
         </tr>   
         <tr class="heading">
           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">  60% de total TTC </td>
-          <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).toFixed(2)} €</td>
+          <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).tofixed(2).replace(".",",")} €</td>
         </tr> 
      
      ` 

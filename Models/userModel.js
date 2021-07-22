@@ -26,6 +26,7 @@ const schemaUser=mongoose.Schema({
        type: {type: String, default: "Particulier"},
        codeForgotPassword: {type: String, default: ""},
        
+       isActive: {type: Number, default: 1},
     },
     {
          timestamps: true 

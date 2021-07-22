@@ -22,6 +22,7 @@ mongoose.connect("mongodb://localhost/shopBD",{ useUnifiedTopology: true,useNewU
 .then(console.log("connected to mongodb"))
 .catch(err=>console.log(err))
 */
+
 app.use(express.json())
 
 app.use(cors())

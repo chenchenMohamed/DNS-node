@@ -26,18 +26,31 @@ const jwt = require('jsonwebtoken');
 
 var dateFormat = require('dateformat');
 
+const puppeteer = require('puppeteer');
+//nconst fsExtra = require('fs-extra');
+
+var phantom = require('phantom'); 
 
 router.post('/create-pdfEmployer', async(req, res)=>{
 
     doc = new PDFDocument;    
-    doc.pipe(fs.createWriteStream('uploads/commande_'+req.body.codeLivraison+'.pdf')); 
+    doc.pipe(fs.createWriteStream('uploads/commande_'+req.body.num+'.pdf')); 
 
     if(req.body.client != "0"){
+
         let user = await User.findOne({_id:req.body.client})
     
-        const options = { format: 'A4' }
+        const options1 = { format: 'Letter'}
         
-        await pdf.create(documentsEmployer(req.body, user), options).toFile('uploads/commande_'+req.body.codeLivraison+'.pdf', (err) => {
+        await pdf.create(documentsEmployer(req.body, user), options1).toFile('uploads/commande_'+req.body.num+'.pdf', (err) => {
+            if(err){
+                return res.send(Promise.reject());
+            }
+       
+            res.send({url:"/uploads/commande_"+req.body.num+".pdf"})
+        })
+        
+        /*  await pdf.create(documentsEmployer(req.body, user), options).toFile('uploads/commande_'+req.body.codeLivraison+'.pdf', (err) => {
         
             if(err){
                 return res.send(Promise.reject());
@@ -45,25 +58,21 @@ router.post('/create-pdfEmployer', async(req, res)=>{
     
             res.send({url:"/uploads/commande_"+req.body.codeLivraison+".pdf"})
           
-        })
+        })*/
     
     }else{
-        
-        const options = { format: 'A4' }
-        
-        await pdf.create(documentsEmployerSansClient(req.body), options).toFile('uploads/commande_'+req.body.codeLivraison+'.pdf', (err) => {
-        
+
+        const options1 = { format: 'Letter'}
+        await pdf.create(documentsEmployerSansClient(req.body), options1).toFile('uploads/commande_'+req.body.num+'.pdf', (err) => {
             if(err){
                 return res.send(Promise.reject());
             }
-    
-            res.send({url:"/uploads/commande_"+req.body.codeLivraison+".pdf"})
-          
+       
+            res.send({url:"/uploads/commande_"+req.body.num+".pdf"})
         })
-    
+        
     }
     
-
 })
 
 
@@ -221,19 +230,22 @@ router.post('/newCommandeWithAdmin/:id/:num',  verifytoken, async(req,res)=>{
     const nbr = await Commande.count({});
     const num = nbr + 1;
    
-    let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd");
-    let timeCurrent = dateFormat(new Date(), "HH:MM");
-    let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
+    let dateCurrent = req.body.dateCurrent;
+    let timeCurrent = req.body.timeCurrent;
+    let dateTimeCurrent = req.body.dateTimeCurrent;
    
-    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let dateLivraison =  req.body.date;
     let year = Number(dateLivraison.substring(0,4))
     let mois = Number(dateLivraison.substring(5,7))
     let day = Number(dateLivraison.substring(8,10))  
     
-    let sommeDate = year * 10000 + mois * 100 + day
+    let moisCal = mois + 10
+    let sommeDate = year * 10000 + moisCal * 100 + day
 
-    console.log(sommeDate)
+    let heureCal = req.body.heure + 10
+    sommeDate = sommeDate * 10000 + heureCal * 100 + req.body.minute;
 
+   
     const commande=new Commande({
 
         nomSansClient:req.body.nomSansClient,
@@ -308,18 +320,21 @@ router.post('/newCommandeSansClient', async(req,res)=>{
     const nbr = await Commande.count({});
     const num = nbr + 1;
    
-    let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd");
-    let timeCurrent = dateFormat(new Date(), "HH:MM");
-    let dateTimeCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
+    let dateCurrent = req.body.dateCurrent;
+    let timeCurrent = req.body.timeCurrent;
+    let dateTimeCurrent = req.body.dateTimeCurrent;
     
-    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let dateLivraison =  req.body.date;
     let year = Number(dateLivraison.substring(0,4))
     let mois = Number(dateLivraison.substring(5,7))
     let day = Number(dateLivraison.substring(8,10))  
-    let sommeDate = year * 10000 + mois * 100 + day
+    
+    let moisCal = mois + 10
+    let sommeDate = year * 10000 + moisCal * 100 + day
 
-    console.log(sommeDate)
-   
+    let heureCal = req.body.heure + 10
+    sommeDate = sommeDate * 10000 + heureCal * 100 + req.body.minute;
+
     const commande=new Commande({
         etat:req.body.etat,
         
@@ -391,7 +406,6 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
   
     //if(req.user.user.role != "admin" ) return res.status(400).send({status:false})
 
-    
     let clientVerifier = User.find({id:req.user.user.id})
     if(clientVerifier.length == 0){
         res.status(400).send({status:false})
@@ -406,15 +420,17 @@ router.post('/modifierCommande/:idCommande', verifytoken, async(req,res)=>{
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
 
 
-    let dateLivraison =  dateFormat(new Date(req.body.date), "yyyy-mm-dd");
+    let dateLivraison =  req.body.date;
     let year = Number(dateLivraison.substring(0,4))
     let mois = Number(dateLivraison.substring(5,7))
     let day = Number(dateLivraison.substring(8,10))  
-    let sommeDate = year * 10000 + mois * 100 + day
+    
+    let moisCal = mois + 10
+    let sommeDate = year * 10000 + moisCal * 100 + day
 
-    console.log(sommeDate)
+    let heureCal = req.body.heure + 10
+    sommeDate = sommeDate * 10000 + heureCal * 100 + req.body.minute;
 
-  
     const result=await Commande.findByIdAndUpdate(req.params.idCommande,
         {
             colis:req.body.colis,
@@ -476,8 +492,6 @@ router.post('/ajouterCommentaires', verifytoken, async(req,res)=>{
     //console.log(error.details[0].message)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
   
-    console.log(req.body)
-
     let dateCurrent = dateFormat(new Date(), "yyyy-mm-dd HH:MM");
 
     let commentaire
@@ -588,30 +602,40 @@ router.post('/satistiqueClient', verifytoken, async(req,res)=>{
   
     let id = ""
     if(req.user.user.role == "client"){
+
         id=req.user.user.id
+        const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, client:id});
+        const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, client:id});
+        const nbrComplete = await Commande.count({etat:req.body.etatComplete, client:id});
+        const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, client:id});
+        const nbrLivraisonAnnuler = await Commande.count({etat:req.body.etatAnnuler, client:id});
+        resultat = { nbrLivraisonAnnuler:nbrLivraisonAnnuler, nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
+        return res.send({status:true,resultat:resultat})
+    
     }else{
-        id=req.user.user.chef
+        id=req.user.user.id
+        const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, idCreateur:id});
+        const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, idCreateur:id});
+        const nbrComplete = await Commande.count({etat:req.body.etatComplete, idCreateur:id});
+        const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, idCreateur:id});
+        const nbrLivraisonAnnuler = await Commande.count({etat:req.body.etatAnnuler, idCreateur:id});
+        resultat = { nbrLivraisonAnnuler:nbrLivraisonAnnuler, nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
+        return res.send({status:true,resultat:resultat})
+
     }
     
-    const nbrEnAttentConfirmation = await Commande.count({etat:req.body.etatEnAttentConfirmation, client:id});
+  
    
-    const nbrEnAttentLivraison = await Commande.count({etat:req.body.etatEnAttentLivraison, client:id});
-   
-    const nbrComplete = await Commande.count({etat:req.body.etatComplete, client:id});
-   
-    const nbrLivraisonNow = await Commande.count({etat:req.body.etatEnAttentLivraison, date:req.body.dateNow, client:id});
-   
-    const nbrLivraisonAnnuler = await Commande.count({etat:req.body.etatAnnuler, client:id});
-   
-    resultat = { nbrLivraisonAnnuler:nbrLivraisonAnnuler, nbrEnAttentConfirmation:nbrEnAttentConfirmation, nbrEnAttentLivraison:nbrEnAttentLivraison, nbrComplete:nbrComplete ,nbrLivraisonNow:nbrLivraisonNow}
-    
-    return res.send({status:true,resultat:resultat})
-
 })
 
 
 
+
+
+
 router.post('/commandes', verifytoken, async(req,res)=>{
+
+    
    
     const {error}=validateRequestCommandes(req.body)
     if(error) return res.status(400).send({status:false,message:error.details[0].message})
@@ -629,45 +653,71 @@ router.post('/commandes', verifytoken, async(req,res)=>{
     let filter = []
     let filterGlobal = {}
 
-    if(req.body.etat != ""){
-        filter.push({"etat":req.body.etat})
+    let filterEtat = [];
+    if(req.body.etatAnnuler != ""){
+        filterEtat.push({"etat":req.body.etatAnnuler})
+    }
+
+    if(req.body.etatEnAttentLivraison != ""){
+        filterEtat.push({"etat":req.body.etatEnAttentLivraison})
+    }
+
+    if(req.body.etatCompleter != ""){
+        filterEtat.push({"etat":req.body.etatCompleter})
+    }
+
+    if(filterEtat.length > 1){
+        filter.push({$or :filterEtat})
+    }if(filterEtat.length == 1){
+        filter.push(filterEtat[0])
     }
 
     if(req.body.dateLivraisonDebut != ""){
         
-        let dateLivraison =  dateFormat(new Date(req.body.dateLivraisonDebut), "yyyy-mm-dd");
+        let dateLivraison =  req.body.dateLivraisonDebut;
         let year = Number(dateLivraison.substring(0,4))
         let mois = Number(dateLivraison.substring(5,7))
         let day = Number(dateLivraison.substring(8,10))  
-       
-        let sommeDate = year * 10000 + mois * 100 + day
+        
+        let moisCal = mois + 10
+        let sommeDate = year * 10000 + moisCal * 100 + day
+    
+        sommeDate = sommeDate * 10000;
+
 
         filter.push({"dateNumber":{$gte:sommeDate}})
     }
 
     if(req.body.dateLivraisonFin != ""){
 
-        let dateLivraison =  dateFormat(new Date(req.body.dateLivraisonFin), "yyyy-mm-dd");
+        let dateLivraison =  req.body.dateLivraisonFin;
         let year = Number(dateLivraison.substring(0,4))
         let mois = Number(dateLivraison.substring(5,7))
         let day = Number(dateLivraison.substring(8,10))  
-        let sommeDate = year * 10000 + mois * 100 + day
-
+        
+        let moisCal = mois + 10
+        let sommeDate = year * 10000 + moisCal * 100 + day
+    
+        sommeDate = sommeDate * 10000 + 9999;
+     
         filter.push({"dateNumber":{$lte:sommeDate}})
     }
 
     if(req.body.dateCreation != ""){
         filter.push({"createdDate":req.body.dateCreation})
     }
+    
 
     if(req.user.user.role == "admin"){
   
         if(req.body.numClient != 0){
-            filter.push({"numClient":req.body.numClient})
+            filter.push({"numClient":Number(req.body.numClient)})
         }
 
-        if(filter.length > 0){
+        if(filter.length > 1){
             filterGlobal = {$and:filter}
+        }else if(filter.length == 1){
+            filterGlobal=filter[0]
         }else{
             filterGlobal={}
         }
@@ -693,10 +743,109 @@ router.post('/commandes', verifytoken, async(req,res)=>{
         }
 
     }
-
+    
     const result=await Commande.paginate(filterGlobal, options)
     return res.send({status:true,resultat:result})
 })
+
+
+
+router.post('/commandesToday', verifytoken, async(req,res)=>{
+
+    
+   
+    const {error}=validateRequestCommandes(req.body)
+    if(error) return res.status(400).send({status:false,message:error.details[0].message})
+   
+    const options = {
+        page: req.body.page,
+        limit: Number(req.body.limitPage),
+        customLabels: myCustomLabels,
+        //populate: 'client'
+        sort:{
+            dateNumber: 1 
+        }
+    };
+
+    let filter = []
+    let filterGlobal = {}
+
+    let filterEtat = [];
+    if(req.body.etatAnnuler != ""){
+        filterEtat.push({"etat":req.body.etatAnnuler})
+    }
+
+    if(req.body.etatEnAttentLivraison != ""){
+        filterEtat.push({"etat":req.body.etatEnAttentLivraison})
+    }
+
+    if(req.body.etatCompleter != ""){
+        filterEtat.push({"etat":req.body.etatCompleter})
+    }
+
+    if(filterEtat.length > 1){
+        filter.push({$or :filterEtat})
+    }if(filterEtat.length == 1){
+        filter.push(filterEtat[0])
+    }
+
+    if(req.body.dateLivraisonDebut != ""){
+        
+        filter.push({"date":req.body.dateLivraisonDebut})
+    }
+
+  
+    if(req.body.dateCreation != ""){
+        filter.push({"createdDate":req.body.dateCreation})
+    }
+    
+
+    if(req.user.user.role == "admin"){
+  
+        if(req.body.numClient != 0){
+            filter.push({"numClient":Number(req.body.numClient)})
+        }
+
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else if(filter.length == 1){
+            filterGlobal=filter[0]
+        }else{
+            filterGlobal={}
+        }
+    
+    }else if(req.user.user.role == "client"){
+  
+        filter.push({"client":req.user.user.id})
+        
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else{
+            filterGlobal = {"client":req.user.user.id}
+        }
+
+    }else{
+  
+        filter.push({"idCreateur":req.user.user.id})
+        
+        if(filter.length > 1){
+            filterGlobal = {$and:filter}
+        }else{
+            filterGlobal = {"idCreateur":req.user.user.id}
+        }
+
+    }
+    
+    const result=await Commande.paginate(filterGlobal, options)
+    return res.send({status:true,resultat:result})
+})
+
+
+router.get('/getCommande/:id', verifytoken, async(req,res)=>{
+    const result=await Commande.findOne({_id:req.params.id})
+    return res.send({status:true,resultat:result})
+})
+
 
 router.post('/newsCommandes', verifytoken, async(req,res)=>{
    

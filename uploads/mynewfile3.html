@@ -1,0 +1,253 @@
+
+    <!doctype html>
+    <html>
+       <head>
+          <meta charset="utf-8">
+          <title>PDF Result Template</title>
+          <style>
+             .invoice-box {
+             margin: auto;
+             padding: 30px;
+             border: 1px solid #eee;
+             box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+             font-size: 16px;
+             line-height: 15px;
+             font-family: 'Helvetica Neue', 'Helvetica', #555;
+             }
+             .margin-top {
+             margin-top: 50px;
+             }
+             .justify-center {
+             text-align: center;
+             }
+             .invoice-box table {
+             width: 100%;
+             line-height: inherit;
+             text-align: left;
+             }
+             .invoice-box table td {
+             padding: 5px;
+             vertical-align: top;
+             }
+             .invoice-box table tr td:nth-child(2) {
+             text-align: right;
+             }
+
+             .invoice-box table tr td:nth-child(3) {
+                text-align: right;
+             }
+
+
+             .table-colis-2{
+                text-align: center !important;
+             }
+             
+             
+       
+             .invoice-box table tr.top table td {
+             padding-bottom: 15px;
+             }
+             .invoice-box table tr.top table td.title {
+             font-size: 15px;
+             line-height: 15px;
+             color: #333;
+             }
+             .invoice-box table tr.information table td {
+             padding-bottom: 20px;
+             }
+             .invoice-box table tr.heading td {
+             background: #eee;
+             border-bottom: 1px solid #ddd;
+             font-weight: bold;
+             }
+             .invoice-box table tr.details td {
+             padding-bottom: 10px;
+             }
+             .invoice-box table tr.item td {
+             border-bottom: 1px solid #eee;
+             }
+             .invoice-box table tr.item.last td {
+             border-bottom: none;
+             }
+             .invoice-box table tr.total td:nth-child(2) {
+             border-top: 2px solid #eee;
+             font-weight: bold;
+             }
+             @media only screen and (max-width: 600px) {
+             .invoice-box table tr.top table td {
+             width: 100%;
+             display: block;
+             text-align: center;
+             }
+             .invoice-box table tr.information table td {
+             width: 100%;
+             display: block;
+             text-align: center;
+             }
+             }
+
+             td{
+                font-size:15px;
+             }
+             th{
+               font-size:15px;
+             }
+
+             .style-blod{
+               font-weight:900 !important;
+             }
+          </style>
+       </head>
+       <body>
+          <div class="invoice-box">
+             <table cellpadding="0" cellspacing="0">
+                <tr class="top">
+                   <td colspan="2">
+                      <table>
+                         <tr>
+                            <td class="title">
+                               <img  src="./logo.png" style=" max-width:100px;">
+                            </td>
+                            <td style="font-size:7px; line-height:9px;">
+                              Facture n° : 71 <br>
+                              En Date du : (25/6/2021 15:31)
+                            </td>
+                         </tr>
+
+                         <tr>
+                            <td style="font-size:7px; line-height:9px;">
+                            
+                               <span class="style-blod"> DNA Transport </span> <br>
+                               1 square condillac appt 92 <br>
+                               77100 Meaux <br>
+                          
+                               <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
+                               <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
+
+                               N° Siret 849 307 210 00013 <br>
+                               N° TVA. FR 41 849 307 210 
+                          
+                            </td>
+                            <td style="font-size:7px; line-height:9px;">
+                            
+                            </td>
+                         </tr>
+
+                         <tr>
+                           <td style="font-size:7px; line-height:9px;">
+                             <span class="style-blod"> Client de départ:  </span> <br>
+                           </td>
+                           <td style="font-size:7px; line-height:9px;">
+                            
+                             <span class="style-blod">Nom:  </span>  Client2021 <br>
+                             <span class="style-blod">Adresse:  </span>7 Rue de la Noue, 78113 Adainville, France <br>
+                             <span class="style-blod">Tél: </span> 123 568 999 777 8888 <br>
+                             <span class="style-blod">Entreprise: </span> Client2021 <br>
+                           
+                           </td>
+                        </tr>
+
+                         <tr>
+                           <td style="font-size:7px; line-height:9px;">
+                              <span class="style-blod"> Client d'arrivée:  </span> <br>
+                           </td>
+                           <td style="font-size:7px; line-height:9px;">
+                              
+                            
+                              <span class="style-blod">Nom:  </span>  Alex dederot <br>
+                              <span class="style-blod">Tél:  </span>123 456 789 <br>
+                             
+                        
+                           </td>
+                          </tr>
+
+                          <tr>
+                          <td style="font-size:7px; line-height:9px;">
+                             <span class="style-blod"> Colis : </span><br>
+                          </td>
+                          <td style="font-size:7px; line-height:9px;">
+                             
+                             <span class="style-blod">Poids Total:  </span>  500 <br>
+                             <span class="style-blod">Nombre:  </span>10 <br>
+                         
+                          </td>
+                         </tr>
+
+                          <tr>
+                           <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                              
+                              <span class="style-blod"> Livraison : </span><br>
+                       
+                           </td>
+                           <td style="font-size:7px;"> 
+                             
+                             <span class="style-blod"> Numéro de commande : </span> 123456 <br>
+                             <span class="style-blod"> Etat : </span> Complete <br>
+                             <span class="style-blod"> Date : </span> 25/06/2021 <br>
+                             <span class="style-blod"> Camion : </span> 12 m3 <br>
+                             <span class="style-blod"> Heures : </span> 7:30 - 10:00 <br>
+                             <span class="style-blod"> Etage : </span> Sur le trottoir <br>
+                       
+                           </td>
+                          </tr>
+
+                          <tr>
+                          <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                             
+                             <span class="style-blod"> Adresses : </span><br>
+                      
+                          </td>
+                          <td style="font-size:7px;"> 
+                            
+                            <span class="style-blod"> Adresse Départ : </span> 7 Rue de la Noue, 78113 Adainville, France <br>
+                            <span class="style-blod"> Adresse Arrivée : </span> 7 Rue Jean Debrot, 90100 Delle, France <br>
+                            <span class="style-blod"> Distance : </span> 545.503 km <br>
+                       
+                          </td>
+                         </tr>
+
+                      </table>
+                   </td>
+                </tr>
+               
+             </table>
+             <br />
+
+           
+
+            <table class="table-colis" cellpadding="0" cellspacing="0">
+              
+               <tr>
+                   
+                   <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
+                   
+                   <td>
+                   
+                   </td>
+                </tr>
+ 
+            </table>
+
+            <table class="table-colis" cellpadding="0" cellspacing="0">
+              
+                <tr>
+                    <td style="width:50%; font-size:7px; line-height:9px; height:100%;">
+                        
+                        <p style="margin-top:auto;">
+                           Conditions de paiement : paiement à réception de facture<br>
+                           Mode de paiement : par virement ou chèque<br>
+                           Nous vous remercions de votre confiance<br>
+                           Cordialement 
+                        </p>
+
+                    </td>
+                    <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
+                </tr>
+
+            </table>
+
+            
+          </div>
+       </body>
+    </html>
+    

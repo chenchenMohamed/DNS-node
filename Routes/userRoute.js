@@ -73,6 +73,7 @@ router.post('/register',async(req,res)=>{
 
 router.post('/registerClient',verifytoken, async(req,res)=>{
 
+    
     if(req.user.user.role == "sousClient")
     return res.status(400).json('articleId expected');
   
@@ -140,8 +141,10 @@ router.post('/login',async(req,res)=>{
     if(!user){
         user = await User.findOne({ username: req.body.email});
     }
-
+    
     if(!user) return res.send({status:false, message:'errorLogin'});
+
+    if(user.isActive == 0 && user.role != "admin") return res.send({status:false, message:'errorLogin'});
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if(!validPass) return res.send({status:false, message:'errorLogin'})    
@@ -327,6 +330,8 @@ router.post('/updateAdmin/:id', verifytoken, async(req,res)=>{
 
 router.post('/listesClients', verifytoken, async(req,res)=>{
 
+    //await User.deleteMany();
+    
     const options = {
         page: req.body.page,
         limit: req.body.limit,
@@ -362,6 +367,7 @@ router.post('/listesClients', verifytoken, async(req,res)=>{
 })
 
 router.post('/allClients', verifytoken, async(req,res)=>{
+    //await User.deleteMany({role:"sousClient"});
 
     result=await User.find({role:"client"})
   
@@ -401,6 +407,17 @@ router.post('/listesSousClients', verifytoken, async(req,res)=>{
     }
     
     return res.send({status:true,resultat:result})
+})
+
+
+router.post('/ActiveClients/:id/:active', async(req,res)=>{
+    
+    const result = await User.findByIdAndUpdate(req.params.id,{
+       isActive:req.params.active,  
+    })
+    
+    return res.send({status:true,resultat:result, request:req.body})
+  
 })
 
 

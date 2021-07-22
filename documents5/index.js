@@ -3,7 +3,7 @@ module.exports = (commande, client) => {
 
     const ht = getPrixHT(commande.factureAutomatique, commande.facture);
     const ttc = getPrixTTC(commande.factureAutomatique, commande.facture);
-    const tva = (ttc - ht).toFixed(2);
+    const tva = (ttc - ht);
 return `
     <!doctype html>
     <html>
@@ -125,8 +125,7 @@ return `
                          <tr>
                             <td style="font-size:7px; line-height:9px;">
                                <span class="style-blod"> DNA Transport </span> <br>
-                               1 square condillac appt 92 <br>
-                               77100 Meaux
+                               1 square condillac appt 92 77100 Meaux
                             </td>
                             <td style="font-size:7px; line-height:9px;">
                               <span class="style-blod"> ${client.nom}  </span> <br>
@@ -178,15 +177,15 @@ return `
                            
                            <tr >
                               <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Total HT </td>
-                              <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.toFixed(2)} €</td>
+                              <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${getNumberFixed2(ht)} €</td>
                            </tr>
                            <tr>
                               <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA 20,00% </td>
-                              <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${tva} €</td>
+                              <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${getNumberFixed2(tva)} €</td>
                            </tr>
                            <tr class="heading">
                              <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Total TTC </td>
-                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.toFixed(2)} €</td>
+                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${getNumberFixed2(ttc)} €</td>
                            </tr>
    
                         </table>
@@ -408,4 +407,19 @@ function getTime(heure1,mode1,heure2,mode2){
 
     return somme 
 
+}
+
+function  getNumberFixed2(number){
+   let numberString = number + "";
+   let posPoint = numberString.indexOf(".");
+   if(posPoint > -1){
+     let int = numberString.substr(0,posPoint);
+     let desimale = numberString.substr(posPoint+1,2);
+     if(desimale.length == 1){
+       desimale += "0"
+     }
+     return(int + ","+desimale);
+   }else{
+     return numberString;
+   }
 }

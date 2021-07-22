@@ -1,5 +1,10 @@
 module.exports = (commande, client) => {
     const today = new Date();
+
+    const ht = parseFloat(getPrixHT(commande.factureAutomatique, commande.facture));
+    const ttc = parseFloat(getPrixTTC(commande.factureAutomatique, commande.facture));
+    const tva = parseFloat(ttc - ht);
+
 return `
     <!doctype html>
     <html>
@@ -109,11 +114,11 @@ return `
                   <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> N° de commande </td>
                   
                   <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Nom du client </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Adresse de livraison </td>
+                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Adresses de Livraison </td>
 
                   <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Détails </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix(HT) </td>
-                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix TTC(20%) </td>
+                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix HT </td>
+                  <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix TTC </td>
 
                </tr>
               
@@ -130,7 +135,17 @@ return `
 };
 
 
-
+function getNumberFixed2(number){
+  let numberString = number + "";
+  let posPoint = numberString.indexOf(".");
+  if(posPoint > -1){
+    let int = numberString.substr(0,posPoint);
+    let desimale = numberString.substr(posPoint+1,2);
+    return(int + ","+desimale);
+  }else{
+     return numberString;
+  }
+}
 
 function getFacture(commande, client, facture, facture2){
     let prixTotale = 0;
@@ -145,15 +160,14 @@ function getFacture(commande, client, facture, facture2){
           <tr class="item">
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${getDateFormaFrancaise(commande.date)} </td>
             <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.codeLivraison} </td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.nom} </td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.adresse} </td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.nomDestination} </td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${commande.adresseArrive} </td>
        
             <td style="border: 1px solid black; text-align:center; font-size:7px;" >${facture[i].titre}</td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${(facture[i].valeur).toFixed(2)} €</td>
-            <td style="border: 1px solid black; text-align:center; font-size:7px;">${(facture[i].valeurTtc).toFixed(2)} €</td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(facture[i].valeur)} €</td>
+            <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(facture[i].valeurTtc)} €</td>
           </tr>
         `
-
     }
 
     for(let i = 0; i < facture2.length; i++){
@@ -169,11 +183,50 @@ function getFacture(commande, client, facture, facture2){
           <td style="border: 1px solid black; text-align:center; font-size:7px;">${client.adresse} </td>
    
           <td style="border: 1px solid black; text-align:center; font-size:7px;" >${facture2[i].titre}</td>
-          <td style="border: 1px solid black; text-align:center; font-size:7px;">${(facture2[i].valeur).toFixed(2)} €</td>
-          <td style="border: 1px solid black; text-align:center; font-size:7px;">${(facture2[i].valeurTtc).toFixed(2)} €</td>
+          <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(facture2[i].valeur)} €</td>
+          <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(facture2[i].valeurTtc)} €</td>
     
         </tr>
         `
+
+    }
+
+    let raison = ""
+    if(commande.etat == "Annuler avec refacturation"){
+      if( commande.raisonAnnulation != 'Autre')
+      raison = "("+commande.raisonAnnulation+")"
+      else
+      raison = "("+commande.detailsAnnulation+")"
+    }
+
+    if(commande.etat == "Annuler avec refacturation"){
+      somme += `
+      <tr class="item">
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+ 
+        <td style=" text-align:center; font-size:7px;" ></td>
+        <td style="border: 1px solid black; text-align:center; font-size:10px;">Raison d'annulation:</td>
+        <td style="border: 1px solid black; text-align:center; font-size:10px;">${raison}</td>
+  
+      </tr>
+      `
+
+      somme += `
+      <tr class="item">
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+        <td style=" text-align:center; font-size:7px;"></td>
+ 
+        <td style=" text-align:center; font-size:7px;" ></td>
+        <td style="border: 1px solid black; text-align:center; font-size:10px;">Prix total TTC:</td>
+        <td style="border: 1px solid black; text-align:center; font-size:10px;"><span style="text-decoration: line-through;" >${getNumberFixed2 (prixTotaleTtc)}€ </span> <br> <span>${getNumberFixed2(prixTotaleTtc * 0.5)}€ </span></td>
+  
+      </tr>
+      `
 
     }
 
@@ -242,7 +295,7 @@ function getFacture2(facture, facture2){
       <tr class="item">
         <td>Prix net:</td>
         <td class="table-colis-2"></td>
-        <td>${prixTotale.toFixed(2)} €</td>
+        <td>${prixTotale.tofixed(2).replace(".",",")} €</td>
       </tr>
     `
 
@@ -250,7 +303,7 @@ function getFacture2(facture, facture2){
       <tr class="item">
         <td>TTC:</td>
         <td class="table-colis-2"></td>
-        <td>${(prixTotaleTtc - prixTotale).toFixed(2)} €</td>
+        <td>${(prixTotaleTtc - prixTotale).tofixed(2).replace(".",",")} €</td>
       </tr>
     `
     
@@ -258,7 +311,7 @@ function getFacture2(facture, facture2){
       <tr class="item">
         <td>Prix avec TTC:</td>
         <td class="table-colis-2"></td>
-        <td>${prixTotaleTtc.toFixed(2)} € </td>
+        <td>${prixTotaleTtc.tofixed(2).replace(".",",")} € </td>
       </tr>
     `
 
@@ -278,4 +331,43 @@ function getDateFormaFrancaise(dateEnglaise){
   
   somme = dateEnglaise + somme
   return somme 
+}
+
+function getPrixHT(facture, facture2){
+  let prixTotale = 0;
+  let prixTotaleTtc = 0;
+
+  let somme = ``;
+  for(let i = 0; i < facture.length; i++){
+      prixTotale += facture[i].valeur;
+      prixTotaleTtc += facture[i].valeurTtc;
+  }
+
+  for(let i = 0; i < facture2.length; i++){
+      prixTotale += facture2[i].valeur;
+      prixTotaleTtc += facture2[i].valeurTtc;
+  }
+
+  return prixTotale;
+}
+
+function getPrixTTC(facture, facture2){
+  let prixTotale = 0;
+  let prixTotaleTtc = 0;
+
+  let somme = ``;
+  for(let i = 0; i < facture.length; i++){
+      prixTotale += facture[i].valeur;
+      prixTotaleTtc += facture[i].valeurTtc;
+            
+  }
+
+  for(let i = 0; i < facture2.length; i++){
+      prixTotale += facture2[i].valeur;
+      prixTotaleTtc += facture2[i].valeurTtc;
+            
+  }
+
+  return prixTotaleTtc;
+
 }

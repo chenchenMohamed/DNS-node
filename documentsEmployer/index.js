@@ -9,15 +9,13 @@ module.exports = (commande, client) => {
           <title>PDF Result Template</title>
           <style>
              .invoice-box {
-             max-width: 800px;
              margin: auto;
              padding: 30px;
              border: 1px solid #eee;
              box-shadow: 0 0 10px rgba(0, 0, 0, .15);
              font-size: 16px;
              line-height: 15px;
-             font-family: 'Helvetica Neue', 'Helvetica',
-             color: #555;
+             font-family: 'Helvetica Neue', 'Helvetica', #555;
              }
              .margin-top {
              margin-top: 50px;
@@ -109,29 +107,13 @@ module.exports = (commande, client) => {
                 <tr class="top">
                    <td colspan="2">
                       <table>
-                         <tr>
-                            <td class="title">
-                               <img  src="./logo.png" style=" max-width:100px;">
-                            </td>
-                            <td style="font-size:7px; line-height:9px;">
-                              Facture n° : ${commande.num} <br>
-                              En Date du : (${`${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`})
-                            </td>
-                         </tr>
-
+                         
                          <tr>
                             <td style="font-size:7px; line-height:9px;">
                             
-                               <span class="style-blod"> DNA Transport </span> <br>
-                               1 square condillac appt 92 <br>
-                               77100 Meaux <br>
-                          
-                               <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
-                               <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
-
-                               N° Siret 849 307 210 00013 <br>
-                               N° TVA. FR 41 849 307 210 
-                          
+                               <span class="style-blod"> Numéro de commande :</span>  ${commande.codeLivraison} <br>
+                               <span class="style-blod"> Date : </span> ${getDateFormaFrancaise(commande.date)} <br>
+                            
                             </td>
                             <td style="font-size:7px; line-height:9px;">
                             
@@ -141,75 +123,93 @@ module.exports = (commande, client) => {
                          <tr>
                            <td style="font-size:7px; line-height:9px;">
                              <span class="style-blod"> Client de départ:  </span> <br>
+                             <br>
+                             <span class="style-blod">Nom:  </span>  ${client.nom} <br>
+                             <span class="style-blod">Adresse:  </span>${commande.adresseDepart} <br>
+                             <!--<span class="style-blod">Tél: </span> ${client.telephone} <br>-->
                            </td>
                            <td style="font-size:7px; line-height:9px;">
-                            
-                             <span class="style-blod">Nom:  </span>  ${client.nom} <br>
-                             <span class="style-blod">Adresse:  </span>${client.adresse} <br>
-                             <span class="style-blod">Tél: </span> ${client.telephone} <br>
-                             <span class="style-blod">Entreprise: </span> ${client.entreprise} <br>
-                           
                            </td>
                         </tr>
 
                          <tr>
                            <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod"> Client d'arrivée:  </span> <br>
+                                  <span class="style-blod"> Client d'arrivée:  </span> <br>
+                                  <br>
+                                  <span class="style-blod">Nom:  </span> ${commande.nomDestination} <br>
+                                  <span class="style-blod"> Adresse: </span> ${commande.adresseArrive} <br>
                            </td>
+                           
                            <td style="font-size:7px; line-height:9px;">
-                              
-                            
-                              <span class="style-blod">Nom:  </span>  ${commande.nomDestination} <br>
-                              <span class="style-blod">Tél:  </span>${commande.telephoneDestination} <br>
-                             
-                        
                            </td>
+                          
                           </tr>
-
-                          <tr>
-                          <td style="font-size:7px; line-height:9px;">
-                             <span class="style-blod"> Colis : </span><br>
-                          </td>
-                          <td style="font-size:7px; line-height:9px;">
-                             
-                             <span class="style-blod">Poids Total:  </span>  ${commande.colis[0].poidsTotale} <br>
-                             <span class="style-blod">Nombre:  </span>${commande.colis[0].nbr} <br>
-                         
-                          </td>
-                         </tr>
 
                           <tr>
                            <td class="style-blod" style="font-size:7px; line-height:9px;" >
                               
                               <span class="style-blod"> Livraison : </span><br>
-                       
+                              
+                              <br>
+                              
+                             <!-- <span class="style-blod"> Etat : </span> ${commande.etat} <br> -->
+                              <span class="style-blod"> Camion : </span> ${commande.typeCamion} <br>
+                              <span class="style-blod"> Créneaux : </span> ${getTime(commande.heure, commande.minute, commande.heureFin, commande.minuteFin)} <br>
+                              <span class="style-blod"> Etage : </span> ${commande.etageArrive} <br>
+                              <span class="style-blod"> Poids :  </span>  ${commande.colis[0].poidsTotale} <br>
+                              <span class="style-blod"> Colis :  </span>${commande.colis[0].nbr} <br>
+                              <span class="style-blod">Tél:  </span>${commande.telephoneDestination} <br>
+                                                     
                            </td>
                            <td style="font-size:7px;"> 
                              
-                             <span class="style-blod"> Numéro de commande : </span> ${commande.codeLivraison} <br>
-                             <span class="style-blod"> Etat : </span> ${commande.etat} <br>
-                             <span class="style-blod"> Date : </span> ${getDateFormaFrancaise(commande.date)} <br>
-                             <span class="style-blod"> Camion : </span> ${commande.typeCamion} <br>
-                             <span class="style-blod"> Heures : </span> ${getTime(commande.heure, commande.minute, commande.heureFin, commande.minuteFin)} <br>
-                             <span class="style-blod"> Etage : </span> ${commande.etageArrive} <br>
-                       
+                           
                            </td>
                           </tr>
 
                           <tr>
-                          <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                          <!--<td class="style-blod" style="font-size:7px; line-height:9px;" >
                              
                              <span class="style-blod"> Adresses : </span><br>
                       
-                          </td>
+                             <br>
+                             <span class="style-blod"> Adresse Départ : </span> ${commande.adresseDepart} <br>
+                             <span class="style-blod"> Adresse Arrivée : </span> ${commande.adresseArrive} <br>
+                             <span class="style-blod"> Distance : </span> ${commande.distance} km <br>
+                        
+                          </td>-->
                           <td style="font-size:7px;"> 
                             
-                            <span class="style-blod"> Adresse Départ : </span> ${commande.adresseDepart} <br>
-                            <span class="style-blod"> Adresse Arrivée : </span> ${commande.adresseArrive} <br>
-                            <span class="style-blod"> Distance : </span> ${commande.distance} km <br>
-                       
+                           
                           </td>
                          </tr>
+
+                         <tr>
+                        <!-- <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                            
+                            <span class="style-blod"> Détails : </span><br>
+                     
+                            <br>
+                            
+                            ${getDetails(commande.factureAutomatique, commande.facture, commande)}
+
+                         </td>-->
+
+                         <td class="style-blod" style="font-size:7px; line-height:9px;" >
+                            
+                            <span class="style-blod"> Message client : </span><br>
+                  
+                            <br>
+                            
+                            ${commande.detailsCourse}
+
+                         </td>
+
+                         <td style="font-size:7px;"> 
+                           
+                          
+                         </td>
+                        </tr>
 
                       </table>
                    </td>
@@ -233,19 +233,7 @@ module.exports = (commande, client) => {
  
             </table>
 
-            <table class="table-colis" cellpadding="0" cellspacing="0">
-              
-                <tr>
-                    <td style="width:50%; font-size:7px; line-height:9px;">
-                    Conditions de paiement : paiement à réception de facture<br>
-                    Mode de paiement : par virement ou chèque<br>
-                    Nous vous remercions de votre confiance<br>
-                    Cordialement
-                    </td>
-                    <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
-                </tr>
-
-            </table>
+          
 
             
           </div>
@@ -259,10 +247,9 @@ module.exports = (commande, client) => {
 function getFactureGlobal(ht, tva, ttc, commande){
       
    let somme = `  
-   
    <tr >
       <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Total HT </td>
-      <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.toFixed(2)} €</td>
+      <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.tofixed(2).replace(".",",")} €</td>
    </tr>
    <tr>
       <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA 20,00% </td>
@@ -270,7 +257,7 @@ function getFactureGlobal(ht, tva, ttc, commande){
    </tr>
    <tr class="heading">
      <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Total TTC </td>
-     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.toFixed(2)} €</td>
+     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.tofixed(2).replace(".",",")} €</td>
    </tr> 
    
    ` 
@@ -283,7 +270,7 @@ function getFactureGlobal(ht, tva, ttc, commande){
          </tr>   
          <tr class="heading">
            <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">  60% de total TTC </td>
-           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).toFixed(2)} €</td>
+           <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${(ttc * 0.6).tofixed(2).replace(".",",")} €</td>
          </tr> 
       
       ` 
@@ -329,8 +316,6 @@ function getColis(colis){
 
 function getHeures(commande){
      
-
-
 }
 
 
@@ -408,9 +393,27 @@ function getPrixTTC(facture, facture2){
    }
 
    return prixTotaleTtc;
-
 }
 
+function getDetails(facture, facture2, commande){
+   
+   let somme = ``;
+   for(let i = 0; i < facture.length; i++){
+      somme += facture[i].titre+`<br>`      
+   }
+
+   for(let i = 0; i < facture2.length; i++){
+      somme += facture2[i].titre+`<br>`
+   }
+
+   if(commande.detailsCourse != ""){
+
+      somme += `<br> <br> Message client : <br> <br>`+commande.detailsCourse+`<br>`
+   }
+
+   return somme;
+
+}
 
 function getFacture2(facture, facture2){
     let prixTotale = 0;

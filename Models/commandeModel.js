@@ -176,7 +176,11 @@ function validateClientCommande(commande){
 
         raisonAnnulation :Joi.string().allow(""),
         detailsAnnulation :Joi.string().allow(""),
-     
+
+        dateTimeCurrent:Joi.string().allow(""),
+        timeCurrent:Joi.string().allow(""),
+        dateCurrent:Joi.string().allow(""),
+
         etat:Joi.string().allow(""),
     })
    
@@ -251,6 +255,10 @@ function validateAdminCommande(commande){
         tempsMunitation:Joi.number().allow(""),
 
         codeLivraison:Joi.string().allow(""),
+
+        dateTimeCurrent:Joi.string().allow(""),
+        timeCurrent:Joi.string().allow(""),
+        dateCurrent:Joi.string().allow(""),
         
         etat:Joi.string().allow("")
     })
@@ -261,7 +269,9 @@ function validateAdminCommande(commande){
 function validateRequestCommandes(commande){
 
     let schema = Joi.object({
-        etat:Joi.string().allow(""),
+        etatAnnuler:Joi.string().allow(""),
+        etatEnAttentLivraison:Joi.string().allow(""),
+        etatCompleter:Joi.string().allow(""),
        
         dateLivraisonDebut:Joi.string().allow(""),
         dateLivraisonFin:Joi.string().allow(""),
@@ -304,6 +314,10 @@ function validateCommandeSansClient(commande){
         creneaux:Joi.number().allow(""),
 
         codeLivraison:Joi.string().allow(""),
+
+        dateTimeCurrent:Joi.string().allow(""),
+        timeCurrent:Joi.string().allow(""),
+        dateCurrent:Joi.string().allow(""),
         
         etat:Joi.string().allow("")
     })

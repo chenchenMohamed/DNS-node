@@ -5,7 +5,7 @@ module.exports = (request, client) => {
 
     for(let i = 0; i < request.commandes.length; i++){
         if(request.commandes[i].etat == "Annuler avec refacturation"){
-         sommeHt += (getPrixHT(request.commandes[i].factureAutomatique, request.commandes[i].facture)* 0.6);
+         sommeHt += (getPrixHT(request.commandes[i].factureAutomatique, request.commandes[i].facture)* 0.5);
       
         }else{
          sommeHt += getPrixHT(request.commandes[i].factureAutomatique, request.commandes[i].facture);
@@ -17,7 +17,7 @@ module.exports = (request, client) => {
 
     for(let i = 0; i < request.commandes.length; i++){
       if(request.commandes[i].etat == "Annuler avec refacturation"){
-         sommeTtc += (getPrixTTC(request.commandes[i].factureAutomatique, request.commandes[i].facture) * 0.6);
+         sommeTtc += (getPrixTTC(request.commandes[i].factureAutomatique, request.commandes[i].facture) * 0.5);
        
       }else{
          sommeTtc += getPrixTTC(request.commandes[i].factureAutomatique, request.commandes[i].facture);
@@ -27,8 +27,8 @@ module.exports = (request, client) => {
     
     const ttc = sommeTtc;
 
-    const tva = (ttc - ht).toFixed(2);
-
+    const tva = (ttc - ht);
+  
 return `
     <!doctype html>
     <html>
@@ -38,6 +38,7 @@ return `
           <style>
              .invoice-box {
              max-width: 800px;
+             min-height: 770px;
              margin: auto;
              padding: 30px;
              border: 1px solid #eee;
@@ -63,7 +64,7 @@ return `
              vertical-align: top;
              }
              .invoice-box table tr td:nth-child(2) {
-             text-align: right;
+                text-align: right;
              }
 
              .invoice-box table tr td:nth-child(3) {
@@ -139,7 +140,7 @@ return `
                       <table>
                          <tr>
                             <td class="title">
-                               <img  src="./logo.png" style=" max-width:100px;">
+                               <span class="style-blod" style="font-size:15px; color:blue; margin-bottom:20px;"> DNA Transport </span> <br>
                             </td>
                             <td style="font-size:7px; line-height:9px;">
                               En Date du : (${`${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`})
@@ -148,21 +149,23 @@ return `
 
                          <tr>
                             <td style="font-size:7px; line-height:9px;">
-                               <span class="style-blod"> DNA Transport </span> <br>
-                               1 square condillac appt 92 <br>
-                               77100 Meaux
+                            <br>
+                            <br>
+                               1 square condillac appt 92 <br> 77100 <br> Meaux <br> <br>
+                               <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br> <br>
+                               <span style="color:blue; font-size:7px;"> Mail1: contact@dna-transport.fr </span> <br>
+                               <span style="color:blue; font-size:7px;"> Mail2: info@dna-transport.fr </span> <br>
+                               <span style="color:blue; font-size:7px;"> Mail3: naseh5@msn.com </span>
+                       
                             </td>
                             <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod"> ${client.nom}  </span> <br>
-                              ${client.adresse}
+                              <span class="style-blod"> ${client.entreprise}  </span> <br> <br>
+                              ${ getAdresse(client.adresse)}
                             </td>
                          </tr>
-
                          <tr>
                            <td style="font-size:7px; line-height:9px;">
-                              <span class="style-blod; font-size:7px;"> Tél </span> (+33) 6 51 50 61 46 <br>
-                              <span style="color:blue; font-size:7px;"> Mail : contact@dna-transport.fr </span> <br>
-                           </td>
+                             </td>
                            <td></td>
                           </tr>
 
@@ -180,7 +183,7 @@ return `
              </table>
              <br />
 
-             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse;>
+             <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; padding-right:0px; padding-right:0px;">
                 <tr class="heading">
                    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Description </td>
                    <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> Quantité </td>
@@ -192,12 +195,12 @@ return `
 
              </table>
 
-            <table class="table-colis" cellpadding="0" cellspacing="0">
+            <table class="table-colis" cellpadding="0" cellspacing="0" style="padding-right:0px; padding-right:0px;">
               
-               <tr>
+               <tr style="padding-right:0px; padding-right:0px;">
                    <td style="color:transparent; width:50%; font-size:7px; line-height:9px;"></td>
-                   <td>
-                        <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width:100%">
+                   <td style="padding-right:0px; padding-right:0px;">
+                        <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width:100% padding-right:0px; padding-right:0px;">
                            
                         ${getFactureGlobal(ht, tva, ttc)}
    
@@ -207,7 +210,7 @@ return `
  
             </table>
 
-            <table class="table-colis" cellpadding="0" cellspacing="0">
+            <table class="table-colis" cellpadding="0" cellspacing="0" style="margin-top:130px;">
               
                 <tr>
                     <td style="width:50%; font-size:7px; line-height:9px;">
@@ -223,12 +226,73 @@ return `
 
             
           </div>
+
+
+          <div class="invoice-box">
+            
+
+          <table class="table-colis" cellpadding="0" cellspacing="0" style="border-collapse: collapse;>
+             
+             <tr class="heading" style="background-color:gray;">
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Date livraison </td>
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> N° de commande </td>
+             
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Nom du client </td>
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Adresses de Livraison </td>
+
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;">Détails </td>
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix HT </td>
+             <td style="border: 1px solid black; font-weight:900; text-align:center; background-color:gainsboro; font-size:7px;"> Prix TTC </td>
+
+
+             </tr>
+            
+            
+             ${getFacture(request)}
+       
+
+          </table>
+         
+        </div>
+
        </body>
     </html>
     `;
 };
 
 
+function getAdresse(adresse){
+
+   let pos1 = adresse.indexOf(",");
+   let adress = adresse.substr(0,pos1);
+   let newAdress =  adresse.substr(pos1+2, adresse.length);
+ 
+   let pos2 = newAdress.indexOf(" ");
+   let codePostal = newAdress.substr(0,pos2);
+
+   newAdress = newAdress.substr(pos2+1, 1000);
+
+   let pos3 = newAdress.indexOf(",");
+   let ville = newAdress.substr(0,pos3);
+ 
+   return `${adress} <br> ${codePostal} <br> ${ville} <br>`;
+}
+ 
+
+function  getNumberFixed2(number){
+   let numberString = number + "";
+   let posPoint = numberString.indexOf(".");
+   if(posPoint > -1){
+     let int = numberString.substr(0,posPoint);
+     let desimale = numberString.substr(posPoint+1,2);
+     if(desimale.length == 1){
+       desimale += "0"
+     }
+     return(int + ","+desimale);
+   }else{
+     return numberString;
+   }
+}
 
 function getFactureGlobal(ht, tva, ttc){
       
@@ -236,15 +300,15 @@ function getFactureGlobal(ht, tva, ttc){
    
    <tr >
       <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">Total HT </td>
-      <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${ht.toFixed(2)} €</td>
+      <td style="border: 1px solid black;  text-align:center; font-size:7px; line-height:9px;"> ${getNumberFixed2(ht)} €</td>
    </tr>
    <tr>
-      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA 20,00% </td>
-      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${tva} €</td>
+      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;"> TVA </td>
+      <td style="border: 1px solid black; text-align:center; font-size:7px; line-height:9px;">${getNumberFixed2(tva)} €</td>
    </tr>
    <tr class="heading">
      <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;">Total TTC </td>
-     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${ttc.toFixed(2)} €</td>
+     <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px; line-height:9px;"> ${getNumberFixed2(ttc)} €</td>
    </tr> 
    
    ` 
@@ -358,7 +422,6 @@ function getPrixTTC(facture, facture2){
    for(let i = 0; i < facture2.length; i++){
        prixTotale += facture2[i].valeur;
        prixTotaleTtc += facture2[i].valeurTtc;
-             
    }
 
    return prixTotaleTtc;
@@ -448,6 +511,175 @@ function getTime(heure1,mode1,heure2,mode2){
 
 
 function getDateFormaFrancaise(dateEnglaise){
+   let somme = ""  
+   let pos1 = dateEnglaise.indexOf("-")
+   somme += "/"+dateEnglaise.substr(0, pos1)
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+ 
+   pos1 = dateEnglaise.indexOf("-")
+   somme = "/"+dateEnglaise.substr(0, pos1) + somme
+   dateEnglaise = dateEnglaise.substr(pos1+1, dateEnglaise.length)
+   
+   somme = dateEnglaise + somme
+   return somme 
+}
+
+
+ // 2 file
+
+ function  getNumberFixed2(number){
+   let numberString = number + "";
+   let posPoint = numberString.indexOf(".");
+   if(posPoint > -1){
+     let int = numberString.substr(0,posPoint);
+     let desimale = numberString.substr(posPoint+1,2);
+     if(desimale.length == 1){
+       desimale += "0"
+     }
+     return(int + ","+desimale);
+   }else{
+     return numberString;
+   }
+ }
+ 
+ 
+ function getFacture(request){
+     let prixTotale = 0;
+     let prixTotaleTtc = 0;
+ 
+     let details = ""
+     let somme = ``;
+     for(let i = 0; i < request.commandes.length; i++){
+         let date = getDateFormaFrancaise(request.commandes[i].date)
+ 
+         prixTotale = getPrixHt(request.commandes[i].facture, request.commandes[i].factureAutomatique);
+         prixTotaleTtc = getPrixTtc(request.commandes[i].facture, request.commandes[i].factureAutomatique);
+         
+ 
+         details = getDetails(request.commandes[i].facture, request.commandes[i].factureAutomatique);
+        
+         let raison = ""
+         if(request.commandes[i].etat == "Annuler avec refacturation"){
+           if( request.commandes[i].raisonAnnulation != 'Autre')
+           raison = "("+request.commandes[i].raisonAnnulation+")"
+           else
+           raison = "("+request.commandes[i].detailsAnnulation+")"
+         }
+ 
+         if(request.commandes[i].etat != "Annuler avec refacturation"){
+             somme += `
+               <tr class="item">
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} /// ${request.commandes[i].adresseArrive} </td>
+            
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;" >${details}</td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2(prixTotale)}€</td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${getNumberFixed2 (prixTotaleTtc)}€</td>
+               </tr>
+             `
+         }else{
+             somme += `
+               <tr class="item">
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${date} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].codeLivraison} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].nomDestination} </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;">${request.commandes[i].adresseDepart} /// ${request.commandes[i].adresseArrive} </td>
+            
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;" >${details} <br> <span style="font-weight: 800;"> ${raison} </span> </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;"> <span style="text-decoration: line-through;" >${getNumberFixed2(prixTotale)}€ </span> <br> <span>${getNumberFixed2(prixTotale * 0.5)}€ </span> </td>
+                 <td style="border: 1px solid black; text-align:center; font-size:7px;"> <span style="text-decoration: line-through;" >${getNumberFixed2 (prixTotaleTtc)}€ </span> <br> <span>${getNumberFixed2(prixTotaleTtc * 0.5)}€ </span></td>
+               </tr>
+             `
+         }
+ 
+     }
+ 
+     
+     return somme
+ }
+ 
+ 
+ 
+ function getPrixHt(facture, facture2){
+     let prixTotale = 0;
+     let prixTotaleTtc = 0;
+ 
+     for(let i = 0; i < facture.length; i++){
+         prixTotale += facture[i].valeur;
+         prixTotaleTtc += facture[i].valeurTtc;
+               
+     }
+ 
+     for(let i = 0; i < facture2.length; i++){
+         prixTotale += facture2[i].valeur;
+         prixTotaleTtc += facture2[i].valeurTtc;
+     }
+ 
+     return prixTotale
+ }
+ 
+ function getPrixTtc(facture, facture2){
+   let prixTotale = 0;
+   let prixTotaleTtc = 0;
+ 
+   for(let i = 0; i < facture.length; i++){
+       prixTotale += facture[i].valeur;
+       prixTotaleTtc += facture[i].valeurTtc;
+   }
+ 
+   for(let i = 0; i < facture2.length; i++){
+       prixTotale += facture2[i].valeur;
+       prixTotaleTtc += facture2[i].valeurTtc;
+   }
+ 
+   return prixTotaleTtc
+ }
+ 
+ 
+ function getDetails(facture, facture2){
+   
+   let somme = ""
+ 
+   for(let i = 0; i < facture.length; i++){
+     somme += facture[i].titre +" ," 
+   }
+ 
+   for(let i = 0; i < facture2.length; i++){
+     somme += facture2[i].titre+" ," 
+   }
+ 
+   return somme
+ }
+ 
+ function getTime(heure1,minute1,heure2,minute2){
+    
+   let somme=""
+   
+   somme += heure1
+   
+   if(minute1 < 10){
+      somme += ":0"+minute1
+   }else{
+      somme += ":"+minute1
+   }
+      
+   somme += " - "
+    
+   somme += heure2
+   
+   if(minute2 < 10){
+      somme += ":0"+minute2
+   }else{
+      somme += ":"+minute2
+   }
+ 
+   return somme 
+ 
+ }
+ 
+ function getDateFormaFrancaise(dateEnglaise){
    let somme = ""  
    let pos1 = dateEnglaise.indexOf("-")
    somme += "/"+dateEnglaise.substr(0, pos1)

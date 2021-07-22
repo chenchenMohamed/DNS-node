@@ -2,7 +2,7 @@ module.exports = (commande, image) => {
     const today = new Date();
     const ht = getPrixHT(commande.factureAutomatique, commande.facture);
     const ttc = getPrixTTC(commande.factureAutomatique, commande.facture);
-    const tva = (ttc - ht).toFixed(2);
+    const tva = (ttc - ht);
 return `
     <!doctype html>
     <html class="style-body">
@@ -128,8 +128,7 @@ return `
                          <tr>
                             <td style="font-size:7px;">
                                <span class="style-blod"> DNA Transport </span> <br>
-                               1 square condillac appt 92 <br>
-                               77100 Meaux
+                               1 square condillac appt 92 77100 Meaux
                             </td>
                             <td style="font-size:7px;">
                               <span class="style-blod" style="font-size:7px;"> ${commande.nomSansClient}  </span> <br>
@@ -186,15 +185,15 @@ return `
                            
                            <tr >
                               <td style="border: 1px solid black; text-align:center; font-size:7px;">Total HT </td>
-                              <td style="border: 1px solid black;  text-align:center; font-size:7px;"> ${ht.toFixed(2)} €</td>
+                              <td style="border: 1px solid black;  text-align:center; font-size:7px;"> ${ht.tofixed(2).replace(".",",")} €</td>
                            </tr>
                            <tr>
                               <td style="border: 1px solid black; text-align:center; font-size:7px;"> TVA 20,00% </td>
-                              <td style="border: 1px solid black; text-align:center; font-size:7px;">${tva} €</td>
+                              <td style="border: 1px solid black; text-align:center; font-size:7px;">${tva.tofixed(2).replace(".",",")} €</td>
                            </tr>
                            <tr class="heading">
                              <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;">Total TTC </td>
-                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;"> ${ttc.toFixed(2)} €</td>
+                             <td style="border: 1px solid black; font-weight:900; text-align:center; font-size:7px;"> ${ttc.tofixed(2).replace(".",",")} €</td>
                            </tr>
    
                         </table>
